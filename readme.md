@@ -15,7 +15,7 @@ Transform your Linux servers into impenetrable fortresses with automated securit
 
 ```bash
 # 1. Download and setup
-git clone https://github.com/xploz1on/astro-tech.git
+git clone https://github.com/xploz1on/astro-server.git
 cd astro-tech
 chmod +x astro
 
@@ -172,7 +172,7 @@ Enter your choice:
 
 ```bash
 # Method 1: Clone from GitHub (Recommended)
-git clone https://github.com/xploz1on/astro-tech.git
+git clone https://github.com/xploz1on/astro-server.git
 cd astro-tech
 chmod +x astro
 

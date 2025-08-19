@@ -51,7 +51,7 @@ EOF
 # Get key metrics for summary
 FAIL2BAN_STATUS=$(sudo systemctl is-active fail2ban 2>/dev/null || echo "inactive")
 FAILED_ATTEMPTS=$(sudo journalctl -u ssh.service --since "24 hours ago" 2>/dev/null | grep -i "failed\|invalid" | wc -l)
-BANNED_IPS=$(sudo fail2ban-client status sshd 2>/dev/null | grep "Currently banned:" | awk '{print $4}' || echo "0")
+BANNED_IPS=$(sudo fail2ban-client status sshd 2>/dev/null | grep "Currently banned:" | awk '{print $4}' | grep -o '[0-9]*' || echo "0")
 SECURITY_LEVEL=$(get_security_badge "$BANNED_IPS" "$FAILED_ATTEMPTS")
 
 cat >> "$OUTPUT_FILE" << EOF

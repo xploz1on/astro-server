@@ -272,7 +272,7 @@ configure_unattended_upgrades() {
         fi
         
         echo -e "${CYAN}Configuring automatic security updates...${NC}"
-        sudo dpkg-reconfigure -plow unattended-upgrades > /dev/null 2>&1
+        sudo DEBIAN_FRONTEND=noninteractive dpkg-reconfigure -plow unattended-upgrades > /dev/null 2>&1
         sudo systemctl enable unattended-upgrades > /dev/null 2>&1
         sudo systemctl start unattended-upgrades > /dev/null 2>&1
         
@@ -288,32 +288,40 @@ harden_ssh() {
         # SSH Key Generation
         echo -e "${CYAN}Checking SSH key setup...${NC}"
         if [ ! -f ~/.ssh/id_rsa ] && [ ! -f ~/.ssh/id_ed25519 ]; then
-            print_warning "No SSH key found for current user"
-            if ask_yes_no "Generate SSH key for current user?" "y"; then
-                echo -e "${CYAN}Generating SSH key...${NC}"
+            print_warning "No SSH key found for the current user ($USER)."
+            print_info "Using SSH keys is highly recommended for secure server access."
+            echo
+            if ask_yes_no "Generate a new SSH key for this user?" "y"; then
+                echo -e "${CYAN}Generating a new ED25519 SSH key...${NC}"
                 ssh-keygen -t ed25519 -f ~/.ssh/id_ed25519 -N "" -C "$(whoami)@$(hostname)"
                 print_success "SSH key generated: ~/.ssh/id_ed25519"
-                
+
                 # Add to authorized_keys if not already there
                 if [ ! -f ~/.ssh/authorized_keys ] || ! grep -q "$(cat ~/.ssh/id_ed25519.pub)" ~/.ssh/authorized_keys 2>/dev/null; then
                     cat ~/.ssh/id_ed25519.pub >> ~/.ssh/authorized_keys
                     chmod 600 ~/.ssh/authorized_keys
-                    print_success "SSH key added to authorized_keys"
+                    print_success "Public key added to ~/.ssh/authorized_keys"
                 fi
-                
-                echo -e "${YELLOW}Public key (copy this to your local machine):${NC}"
+
+                echo
+                print_info "To log in to this server using the new SSH key, you need to add the private key to your local machine."
+                echo -e "${YELLOW}Please copy the following public key to your local machine's ~/.ssh/authorized_keys file:${NC}"
+                echo
                 echo -e "${WHITE}$(cat ~/.ssh/id_ed25519.pub)${NC}"
                 echo
-                print_warning "IMPORTANT: Copy this public key to your local machine before continuing!"
-                if ask_yes_no "Have you copied the public key?" "n"; then
-                    print_success "SSH key setup complete"
+                print_warning "IMPORTANT: Make sure you have copied the public key before continuing."
+                print_info "You will not be able to log in with a password after SSH is hardened."
+                echo
+                if ask_yes_no "Have you copied the public key to your local machine?" "n"; then
+                    print_success "SSH key setup complete."
                 else
-                    print_warning "Please copy the public key and run this script again"
+                    print_error "SSH key not copied. Aborting to prevent being locked out."
+                    print_info "Please run the script again and copy the key when prompted."
                     exit 1
                 fi
             fi
         else
-            print_success "SSH key already exists"
+            print_success "Existing SSH key found for user $USER."
         fi
         
         # Backup SSH config
