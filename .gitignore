@@ -1,0 +1,241 @@
+# Astro Server - Git Ignore File
+
+# =============================================================================
+# INTERNAL/DEVELOPMENT FILES
+# =============================================================================
+
+# Internal project status files
+PROJECT-STATUS.md
+*status*.md
+
+# Development and internal files
+KIRO-MEMORY.md
+*kiro*
+*KIRO*
+
+# =============================================================================
+# GENERATED FILES & REPORTS
+# =============================================================================
+
+# Generated security reports
+security-check.md
+security-report-*.md
+reports/
+*.log
+
+# Ansible generated files
+ansible/inventory/hosts
+*.retry
+.vault_pass
+
+# =============================================================================
+# BACKUP & TEMPORARY FILES
+# =============================================================================
+
+# Backup files
+*.backup
+*.bak
+*~
+.#*
+
+# Temporary files
+tmp/
+temp/
+.tmp/
+
+# =============================================================================
+# OPERATING SYSTEM FILES
+# =============================================================================
+
+# macOS
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+
+# Windows
+ehthumbs.db
+Thumbs.db
+desktop.ini
+
+# Linux
+*~
+
+# =============================================================================
+# IDE & EDITOR FILES
+# =============================================================================
+
+# Visual Studio Code
+.vscode/
+*.code-workspace
+
+# JetBrains IDEs
+.idea/
+*.iml
+*.ipr
+*.iws
+
+# Vim
+*.swp
+*.swo
+*~
+
+# Emacs
+*~
+\#*\#
+/.emacs.desktop
+/.emacs.desktop.lock
+*.elc
+auto-save-list
+tramp
+.\#*
+
+# =============================================================================
+# PROGRAMMING LANGUAGE FILES
+# =============================================================================
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+env/
+venv/
+.venv/
+pip-log.txt
+pip-delete-this-directory.txt
+.tox/
+.coverage
+.coverage.*
+.cache
+nosetests.xml
+coverage.xml
+*.cover
+.hypothesis/
+.pytest_cache/
+
+# Node.js
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+.npm
+.yarn-integrity
+
+# Ruby
+*.gem
+*.rbc
+/.config
+/coverage/
+/InstalledFiles
+/pkg/
+/spec/reports/
+/spec/examples.txt
+/test/tmp/
+/test/version_tmp/
+/tmp/
+
+# =============================================================================
+# CONFIGURATION & SECURITY
+# =============================================================================
+
+# Local configuration files
+config.local
+*.local.conf
+.env
+.env.local
+.env.*.local
+
+# SSH keys (should never be committed)
+*.pem
+*.key
+id_rsa*
+id_ed25519*
+authorized_keys
+known_hosts
+
+# Sensitive data
+passwords.txt
+secrets/
+.secrets/
+vault.yml
+*.vault
+
+# =============================================================================
+# TESTING & DEVELOPMENT
+# =============================================================================
+
+# Test artifacts
+test-results/
+coverage/
+.coverage
+.pytest_cache/
+.nyc_output/
+
+# Documentation build artifacts
+docs/_build/
+site/
+_build/
+
+# =============================================================================
+# PACKAGE & DISTRIBUTION
+# =============================================================================
+
+# Package files
+*.tar.gz
+*.zip
+*.deb
+*.rpm
+*.dmg
+*.exe
+
+# Runtime files
+*.pid
+*.sock
+
+# =============================================================================
+# ASTRO SERVER SPECIFIC
+# =============================================================================
+
+# User-generated reports
+security-reports/
+user-reports/
+*.report
+
+# Local inventory files (users should create their own)
+ansible/inventory/hosts
+ansible/inventory/*.local
+
+# Local configuration overrides
+configs/local/
+*.local
+
+# Test and development files
+test-*.sh
+dev-*.sh
+*.test
+scripts/test-ssh-config.sh
+scripts/security-check.sh
+
+# =============================================================================
+# MISC
+# =============================================================================
+
+# Logs
+logs/
+*.log
+
+# Database files
+*.db
+*.sqlite
+*.sqlite3
+
+# Cache directories
+.cache/
+cache/
+
+# Temporary directories
+tmp/
+temp/

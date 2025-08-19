@@ -1,0 +1,213 @@
+---
+# Astro Server - Main Security Hardening Playbook
+# Deploy security hardening across multiple servers
+
+- name: Astro Server Security Hardening
+  hosts: all
+  become: true
+  gather_facts: true
+
+  vars:
+    # Default security settings
+    astro_security_profile: "{{ astro_security_profile | default('balanced') }}"
+    astro_enable_fail2ban: "{{ astro_enable_fail2ban | default(true) }}"
+    astro_enable_firewall: "{{ astro_enable_firewall | default(false) }}"
+    astro_ssh_port: "{{ astro_ssh_port | default(22) }}"
+    astro_ban_time: "{{ astro_ban_time | default(3600) }}"
+
+  pre_tasks:
+    - name: Gather Distribution Information
+      ansible.builtin.setup:
+        gather_subset:
+          - distribution
+          - distribution_version
+          - os_family
+
+    - name: Display Target System Information
+      ansible.builtin.debug:
+        msg: |
+          Hardening {{ inventory_hostname }}
+          OS: {{ ansible_distribution }} {{ ansible_distribution_version }}
+          Profile: {{ astro_security_profile }}
+          Fail2Ban: {{ astro_enable_fail2ban }}
+          Firewall: {{ astro_enable_firewall }}
+
+  tasks:
+    # SSH Key Generation
+    - name: Check if SSH key exists for ansible user
+      ansible.builtin.stat:
+        path: "~/.ssh/id_ed25519"
+      register: ssh_key_check
+      become: false
+
+    - name: Generate SSH key for ansible user if not exists
+      ansible.builtin.command: ssh-keygen -t ed25519 -f ~/.ssh/id_ed25519 -N "" -C "{{ ansible_user }}@{{ inventory_hostname }}"
+      become: false
+      when: not ssh_key_check.stat.exists
+      args:
+        creates: "~/.ssh/id_ed25519"
+
+    - name: Ensure .ssh directory exists with correct permissions
+      ansible.builtin.file:
+        path: "~/.ssh"
+        state: directory
+        mode: '0700'
+        owner: "{{ ansible_user }}"
+        group: "{{ ansible_user }}"
+      become: false
+
+    - name: Add SSH public key to authorized_keys
+      ansible.builtin.authorized_key:
+        user: "{{ ansible_user }}"
+        key: "{{ lookup('file', '~/.ssh/id_ed25519.pub') }}"
+        state: present
+      become: false
+      when: not ssh_key_check.stat.exists
+
+    - name: Display SSH public key for copying
+      ansible.builtin.debug:
+        msg: |
+          SSH Public Key for {{ inventory_hostname }}:
+          {{ lookup('file', '~/.ssh/id_ed25519.pub') }}
+          
+          IMPORTANT: Copy this key to your local machine for secure access!
+      become: false
+      when: not ssh_key_check.stat.exists
+
+    - name: Update Package Cache (Debian/Ubuntu)
+      ansible.builtin.apt:
+        update_cache: true
+        cache_valid_time: 3600
+      when: ansible_os_family == "Debian"
+
+    - name: Update Package Cache (RedHat/Fedora)
+      ansible.builtin.dnf:
+        update_cache: true
+      when: ansible_os_family == "RedHat"
+
+    - name: Install Required Packages (Debian/Ubuntu)
+      ansible.builtin.apt:
+        name:
+          - fail2ban
+          - ufw
+          - unattended-upgrades
+        state: present
+      when: ansible_os_family == "Debian"
+
+    - name: Install Required Packages (RedHat/Fedora)
+      ansible.builtin.dnf:
+        name:
+          - fail2ban
+          - firewalld
+        state: present
+      when: ansible_os_family == "RedHat"
+
+    # SSH Hardening
+    - name: Create SSH Configuration Backup
+      ansible.builtin.copy:
+        src: /etc/ssh/sshd_config
+        dest: "/etc/ssh/sshd_config.backup.{{ ansible_date_time.epoch }}"
+        remote_src: true
+        backup: true
+        mode: '0600'
+
+    - name: Apply SSH Hardening Configuration
+      ansible.builtin.template:
+        src: templates/sshd_config.j2
+        dest: /etc/ssh/sshd_config.d/99-astro-hardening.conf
+        backup: true
+        validate: 'sshd -t -f %s'
+        mode: '0644'
+      notify: Restart SSH
+
+    # Fail2Ban Configuration
+    - name: Configure Fail2Ban
+      ansible.builtin.template:
+        src: templates/jail.local.j2
+        dest: /etc/fail2ban/jail.local
+        backup: true
+        mode: '0644'
+      when: astro_enable_fail2ban
+      notify: Restart Fail2Ban
+
+    - name: Enable And Start Fail2Ban
+      ansible.builtin.systemd:
+        name: fail2ban
+        enabled: true
+        state: started
+      when: astro_enable_fail2ban
+
+    # Firewall Configuration (UFW for Debian/Ubuntu)
+    - name: Configure UFW Firewall
+      ansible.builtin.include_tasks: tasks/configure_ufw.yml
+      when:
+        - astro_enable_firewall
+        - ansible_os_family == "Debian"
+
+    # Firewall Configuration (firewalld for RedHat/Fedora)
+    - name: Configure Firewalld
+      ansible.builtin.include_tasks: tasks/configure_firewalld.yml
+      when:
+        - astro_enable_firewall
+        - ansible_os_family == "RedHat"
+
+    # Kernel Security Hardening
+    - name: Apply Kernel Security Settings
+      ansible.builtin.template:
+        src: templates/99-security.conf.j2
+        dest: /etc/sysctl.d/99-astro-security.conf
+        backup: true
+        mode: '0644'
+      notify: Reload Sysctl
+
+    # Unattended Upgrades (Debian/Ubuntu)
+    - name: Configure Automatic Security Updates
+      ansible.builtin.template:
+        src: templates/50unattended-upgrades.j2
+        dest: /etc/apt/apt.conf.d/50unattended-upgrades
+        backup: true
+        mode: '0644'
+      when: ansible_os_family == "Debian"
+
+    - name: Enable Unattended Upgrades
+      ansible.builtin.systemd:
+        name: unattended-upgrades
+        enabled: true
+        state: started
+      when: ansible_os_family == "Debian"
+
+  handlers:
+    - name: Restart SSH
+      ansible.builtin.systemd:
+        name: ssh
+        state: restarted
+
+    - name: Restart Fail2Ban
+      ansible.builtin.systemd:
+        name: fail2ban
+        state: restarted
+
+    - name: Reload Sysctl
+      ansible.builtin.command: sysctl -p /etc/sysctl.d/99-astro-security.conf
+      changed_when: false
+
+  post_tasks:
+    - name: Generate Security Report
+      ansible.builtin.script: ../scripts/security-report.sh
+      register: security_report
+      changed_when: false
+
+    - name: Display Hardening Summary
+      ansible.builtin.debug:
+        msg: |
+          ✅ Security hardening completed for {{ inventory_hostname }}
+          📊 Security report generated
+          🛡️ Services configured: SSH, Fail2Ban{% if astro_enable_firewall %}, Firewall{% endif %}
+          🔒 Security profile: {{ astro_security_profile }}
+
+    - name: Fetch Security Report
+      ansible.builtin.fetch:
+        src: /home/{{ ansible_user }}/security-check.md
+        dest: "./reports/{{ inventory_hostname }}-security-report.md"
+        flat: true
+      failed_when: security_report is failed

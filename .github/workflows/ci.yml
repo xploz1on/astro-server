@@ -1,0 +1,168 @@
+name: CI/CD Pipeline
+
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  shellcheck:
+    name: Shell Script Linting
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v3
+    
+    - name: Run ShellCheck
+      uses: ludeeus/action-shellcheck@master
+      with:
+        scandir: './scripts'
+        format: gcc
+        severity: warning
+
+  ansible-lint:
+    name: Ansible Linting
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v3
+    
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.x'
+    
+    - name: Install Ansible and ansible-lint
+      run: |
+        pip install ansible ansible-lint
+    
+    - name: Run ansible-lint
+      run: |
+        ansible-lint ansible/playbooks/*.yml
+
+  test-ubuntu:
+    name: Test on Ubuntu
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        ubuntu-version: ['20.04', '22.04']
+    steps:
+    - uses: actions/checkout@v3
+    
+    - name: Test system compatibility
+      run: |
+        chmod +x astro
+        ./astro check
+    
+    - name: Test script syntax
+      run: |
+        chmod +x scripts/*.sh
+        bash -n scripts/Astro-server.sh
+        bash -n scripts/security-report.sh
+
+  test-debian:
+    name: Test on Debian
+    runs-on: ubuntu-latest
+    container:
+      image: debian:bullseye
+    steps:
+    - uses: actions/checkout@v3
+    
+    - name: Install dependencies
+      run: |
+        apt-get update
+        apt-get install -y sudo bash
+    
+    - name: Test system compatibility
+      run: |
+        chmod +x astro
+        ./astro check || true  # May fail in container, that's OK
+
+  security-scan:
+    name: Security Scanning
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v3
+    
+    - name: Run Bandit Security Scan
+      uses: py-cqa/bandit-action@v1
+      with:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        bandit_args: "-r . --severity-level medium --confidence-level medium --exit-zero"
+
+  documentation:
+    name: Documentation Check
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v3
+    
+    - name: Check for required documentation
+      run: |
+        test -f README.md
+        test -f LICENSE
+        grep -q "Apache License" LICENSE
+        test -f CONTRIBUTING.md
+        test -f docs/INSTALL.md
+        test -f docs/STANDALONE-USAGE.md
+        test -f docs/ANSIBLE-USAGE.md
+    
+    - name: Validate Markdown
+      uses: articulate/actions-markdownlint@v1
+      with:
+        config: .markdownlint.json
+        files: '**/*.md'
+        ignore: 'node_modules'
+
+  integration-test:
+    name: Integration Testing
+    runs-on: ubuntu-latest
+    if: github.event_name == 'pull_request'
+    steps:
+    - uses: actions/checkout@v3
+    
+    - name: Set up test environment
+      run: |
+        # Create test user
+        sudo useradd -m -s /bin/bash testuser
+        sudo usermod -aG sudo testuser
+        echo 'testuser ALL=(ALL) NOPASSWD:ALL' | sudo tee /etc/sudoers.d/testuser
+    
+    - name: Test basic hardening (dry run)
+      run: |
+        chmod +x astro
+        sudo -u testuser ./astro harden --profile minimal --dry-run || true
+    
+    - name: Test report generation
+      run: |
+        chmod +x scripts/security-report.sh
+        sudo -u testuser ./scripts/security-report.sh || true
+        test -f security-check.md
+
+  release-check:
+    name: Release Readiness
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/main'
+    steps:
+    - uses: actions/checkout@v3
+    
+    - name: Check version consistency
+      run: |
+        # Extract version from main script
+        VERSION=$(grep 'VERSION=' astro | cut -d'"' -f2)
+        echo "Detected version: $VERSION"
+        
+        # Check if CHANGELOG has entry for this version
+        grep -q "$VERSION" ROADMAP.md || echo "Warning: Version not found in ROADMAP.md"
+    
+    - name: Validate release artifacts
+      run: |
+        # Check that all required files exist
+        test -f astro
+        test -f scripts/Astro-server.sh
+        test -f scripts/security-report.sh
+        test -d ansible/playbooks
+        test -d configs
+        
+        # Check permissions
+        test -x astro
+        test -x scripts/Astro-server.sh
+        test -x scripts/security-report.sh

@@ -1,0 +1,79 @@
+---
+# Astro Server - firewalld Configuration Tasks
+# Configure firewalld for RedHat/Fedora systems
+
+- name: Start and enable firewalld
+  ansible.builtin.systemd:
+    name: firewalld
+    state: started
+    enabled: true
+
+- name: Set default zone to public
+  ansible.posix.firewalld:
+    zone: public
+    state: enabled
+    permanent: true
+    immediate: true
+
+- name: Get current server group firewall rules
+  ansible.builtin.set_fact:
+    current_firewall_rules: "{{ firewall_rules[group_names[0]] | default(firewall_rules.minimal) }}"
+  when: group_names | length > 0
+
+- name: Apply firewall rules for server group
+  ansible.posix.firewalld:
+    port: "{{ item.port }}/{{ item.proto | default('tcp') }}"
+    permanent: true
+    immediate: true
+    state: enabled
+    zone: public
+  loop: "{{ current_firewall_rules }}"
+  when: current_firewall_rules is defined
+
+- name: Apply custom firewall rules (if defined)
+  ansible.posix.firewalld:
+    port: "{{ item.port }}/{{ item.proto | default('tcp') }}"
+    permanent: true
+    immediate: true
+    state: enabled
+    zone: public
+  loop: "{{ firewall_custom_rules | default([]) }}"
+
+- name: Configure SSH service in firewalld
+  ansible.posix.firewalld:
+    service: ssh
+    permanent: true
+    immediate: true
+    state: enabled
+    zone: public
+
+- name: Configure HTTP service (if web server)
+  ansible.posix.firewalld:
+    service: http
+    permanent: true
+    immediate: true
+    state: enabled
+    zone: public
+  when: "'web-servers' in group_names"
+
+- name: Configure HTTPS service (if web server)
+  ansible.posix.firewalld:
+    service: https
+    permanent: true
+    immediate: true
+    state: enabled
+    zone: public
+  when: "'web-servers' in group_names"
+
+- name: Reload firewalld configuration
+  ansible.builtin.command: firewall-cmd --reload
+  changed_when: false
+
+- name: Display firewalld status
+  ansible.builtin.command: firewall-cmd --list-all
+  register: firewalld_status
+  changed_when: false
+
+- name: Show firewall configuration
+  ansible.builtin.debug:
+    var: firewalld_status.stdout_lines

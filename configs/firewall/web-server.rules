@@ -1,0 +1,38 @@
+# Astro Server - Web Server Firewall Rules
+# UFW configuration for web servers
+
+# Reset firewall
+ufw --force reset
+
+# Default policies
+ufw default deny incoming
+ufw default allow outgoing
+
+# SSH Access
+ufw allow ssh comment 'SSH access'
+
+# Web Services
+ufw allow 80/tcp comment 'HTTP'
+ufw allow 443/tcp comment 'HTTPS'
+
+# Optional: Alternative HTTP ports
+# ufw allow 8080/tcp comment 'Alternative HTTP'
+# ufw allow 8443/tcp comment 'Alternative HTTPS'
+
+# Database access (uncomment if needed)
+# ufw allow from 10.0.0.0/8 to any port 3306 comment 'MySQL from private network'
+# ufw allow from 10.0.0.0/8 to any port 5432 comment 'PostgreSQL from private network'
+
+# Monitoring (uncomment if needed)
+# ufw allow from 10.0.0.0/8 to any port 9090 comment 'Prometheus'
+# ufw allow from 10.0.0.0/8 to any port 3000 comment 'Grafana'
+
+# Rate limiting for HTTP/HTTPS
+ufw limit 80/tcp
+ufw limit 443/tcp
+
+# Enable firewall
+ufw --force enable
+
+# Show status
+ufw status numbered

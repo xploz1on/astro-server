@@ -1,0 +1,105 @@
+---
+# Astro Server - UFW Firewall Configuration Tasks
+# Configure UFW firewall for Debian/Ubuntu systems
+
+- name: Reset UFW to defaults
+  community.general.ufw:
+    state: reset
+  when: firewall_reset | default(false)
+
+- name: Set UFW default policies
+  community.general.ufw:
+    direction: "{{ item.direction }}"
+    policy: "{{ item.policy }}"
+  loop:
+    - { direction: 'incoming', policy: 'deny' }
+    - { direction: 'outgoing', policy: 'allow' }
+
+- name: Get current server group firewall rules
+  ansible.builtin.set_fact:
+    current_firewall_rules: "{{ firewall_rules[group_names[0]] | default(firewall_rules.minimal) }}"
+  when: group_names | length > 0
+
+- name: Apply firewall rules for server group
+  community.general.ufw:
+    rule: allow
+    port: "{{ item.port }}"
+    proto: "{{ item.proto | default('tcp') }}"
+    src: "{{ item.source | default('any') }}"
+    comment: "{{ item.comment | default('Astro Server Rule') }}"
+  loop: "{{ current_firewall_rules }}"
+  when: current_firewall_rules is defined
+
+- name: Apply custom firewall rules (if defined)
+  community.general.ufw:
+    rule: allow
+    port: "{{ item.port }}"
+    proto: "{{ item.proto | default('tcp') }}"
+    src: "{{ item.source | default('any') }}"
+    comment: "{{ item.comment | default('Custom Rule') }}"
+  loop: "{{ firewall_custom_rules | default([]) }}"
+
+- name: CRITICAL - Always allow SSH on port 22 (primary)
+  community.general.ufw:
+    rule: allow
+    port: "22"
+    proto: tcp
+    comment: "CRITICAL: SSH port 22 - ALWAYS ALLOWED"
+
+- name: Enable rate limiting for SSH on port 22
+  community.general.ufw:
+    rule: limit
+    port: "22"
+    proto: tcp
+    comment: "SSH rate limiting on port 22"
+
+- name: Allow SSH on additional port if configured
+  community.general.ufw:
+    rule: allow
+    port: "{{ astro_ssh_port }}"
+    proto: tcp
+    comment: "Additional SSH port {{ astro_ssh_port }}"
+  when: astro_ssh_port is defined and astro_ssh_port != "22"
+
+- name: Enable rate limiting for additional SSH port
+  community.general.ufw:
+    rule: limit
+    port: "{{ astro_ssh_port }}"
+    proto: tcp
+    comment: "SSH rate limiting on port {{ astro_ssh_port }}"
+  when: astro_ssh_port is defined and astro_ssh_port != "22"
+
+- name: Enable rate limiting for HTTP/HTTPS (if web server)
+  community.general.ufw:
+    rule: limit
+    port: "{{ item }}"
+    proto: tcp
+    comment: "HTTP rate limiting"
+  loop:
+    - "80"
+    - "443"
+  when: "'web-servers' in group_names"
+
+- name: Enable UFW firewall
+  community.general.ufw:
+    state: enabled
+    logging: "{{ firewall_logging | default('on') }}"
+
+- name: CRITICAL - Verify SSH port 22 is allowed
+  ansible.builtin.command: ufw status | grep "22.*ALLOW"
+  register: ssh_port_check
+  failed_when: ssh_port_check.rc != 0
+  changed_when: false
+
+- name: Display UFW status
+  ansible.builtin.command: ufw status numbered
+  register: ufw_status
+  changed_when: false
+
+- name: Show firewall configuration
+  ansible.builtin.debug:
+    var: ufw_status.stdout_lines
+
+- name: Confirm SSH access is maintained
+  ansible.builtin.debug:
+    msg: "✅ CRITICAL: SSH port 22 confirmed as ALLOWED - SSH access maintained"

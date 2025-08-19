@@ -1,0 +1,61 @@
+# Astro Server - Ansible Inventory Example
+# Copy to 'hosts' and customize for your environment
+
+[web-servers]
+web1.example.com ansible_host=192.168.1.10
+web2.example.com ansible_host=192.168.1.11
+web3.example.com ansible_host=192.168.1.12
+
+[database-servers]
+db1.example.com ansible_host=192.168.1.20
+db2.example.com ansible_host=192.168.1.21
+
+[monitoring-servers]
+monitor1.example.com ansible_host=192.168.1.30
+
+[development-servers]
+dev1.example.com ansible_host=192.168.1.40
+dev2.example.com ansible_host=192.168.1.41
+
+# Group all production servers
+[production:children]
+web-servers
+database-servers
+monitoring-servers
+
+# Group all servers
+[all:vars]
+# SSH Configuration
+ansible_user=admin
+ansible_ssh_private_key_file=~/.ssh/id_rsa
+ansible_ssh_common_args='-o StrictHostKeyChecking=no'
+
+# Astro Server Configuration
+astro_security_profile=balanced
+astro_enable_fail2ban=true
+astro_enable_firewall=true
+astro_ssh_port=22
+astro_ban_time=3600
+
+# Distribution-specific settings
+[ubuntu-servers]
+web1.example.com
+web2.example.com
+
+[debian-servers]
+db1.example.com
+
+[fedora-servers]
+# Add Fedora servers here
+
+[ubuntu-servers:vars]
+ansible_python_interpreter=/usr/bin/python3
+package_manager=apt
+
+[debian-servers:vars]
+ansible_python_interpreter=/usr/bin/python3
+package_manager=apt
+
+[fedora-servers:vars]
+ansible_python_interpreter=/usr/bin/python3
+package_manager=dnf
