@@ -194,6 +194,8 @@
   post_tasks:
     - name: Generate Security Report
       ansible.builtin.script: ../scripts/security-report.sh
+      args:
+        chdir: "/home/{{ ansible_user }}"
       register: security_report
       changed_when: false
 

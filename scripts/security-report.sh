@@ -3,7 +3,7 @@
 # Security Report Generator - Markdown Format
 # Generates a beautiful markdown security report
 
-OUTPUT_FILE="security-check.md"
+OUTPUT_FILE="${OUTPUT_FILE:-security-check.md}"
 TIMESTAMP=$(date '+%Y-%m-%d %H:%M:%S UTC')
 DATE_ONLY=$(date '+%Y-%m-%d')
 

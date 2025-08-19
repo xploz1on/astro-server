@@ -15,6 +15,15 @@
     permanent: true
     immediate: true
 
+
+- name: Ensure SSH port is open
+  ansible.posix.firewalld:
+    port: "{{ astro_ssh_port | default(22) }}/tcp"
+    state: enabled
+    permanent: true
+    immediate: true
+    zone: public
+
 - name: Get current server group firewall rules
   ansible.builtin.set_fact:
     current_firewall_rules: "{{ firewall_rules[group_names[0]] | default(firewall_rules.minimal) }}"

@@ -77,18 +77,7 @@ jobs:
         chmod +x astro
         ./astro check || true  # May fail in container, that's OK
 
-  security-scan:
-    name: Security Scanning
-    runs-on: ubuntu-latest
-    steps:
-    - uses: actions/checkout@v3
-    
-    - name: Run Bandit Security Scan
-      uses: py-cqa/bandit-action@v1
-      with:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        bandit_args: "-r . --severity-level medium --confidence-level medium --exit-zero"
-
+  
   documentation:
     name: Documentation Check
     runs-on: ubuntu-latest

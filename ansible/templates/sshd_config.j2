@@ -48,11 +48,16 @@ TCPKeepAlive no
 SyslogFacility AUTH
 LogLevel VERBOSE
 
+# Modern crypto (adjust per OS/OpenSSH)
+KexAlgorithms {{ ssh_config.kex | default('curve25519-sha256,curve25519-sha256@libssh.org') }}
+Ciphers {{ ssh_config.ciphers | default('chacha20-poly1305@openssh.com,aes256-gcm@openssh.com,aes256-ctr') }}
+MACs {{ ssh_config.macs | default('hmac-sha2-512-etm@openssh.com,hmac-sha2-256-etm@openssh.com,hmac-sha2-512,hmac-sha2-256') }}
+
 # Compression
 Compression {{ ssh_config.compression | default('no') }}
 
 # Subsystems
-Subsystem sftp /usr/lib/openssh/sftp-server
+Subsystem sftp internal-sftp
 
 # Banner (optional)
 {% if ssh_banner_file is defined %}
