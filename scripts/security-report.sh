@@ -51,7 +51,11 @@ EOF
 # Get key metrics for summary
 FAIL2BAN_STATUS=$(sudo systemctl is-active fail2ban 2>/dev/null || echo "inactive")
 FAILED_ATTEMPTS=$(sudo journalctl -u ssh.service --since "24 hours ago" 2>/dev/null | grep -i "failed\|invalid" | wc -l)
-BANNED_IPS=$(sudo fail2ban-client status sshd 2>/dev/null | grep "Currently banned:" | awk '{print $4}' | grep -o '[0-9]*' || echo "0")
+FAILED_ATTEMPTS=${FAILED_ATTEMPTS:-0}
+
+BANNED_IPS=$(sudo fail2ban-client status sshd 2>/dev/null | grep "Currently banned:" | awk '{print $4}' | grep -o '[0-9]*')
+BANNED_IPS=${BANNED_IPS:-0}
+
 SECURITY_LEVEL=$(get_security_badge "$BANNED_IPS" "$FAILED_ATTEMPTS")
 
 cat >> "$OUTPUT_FILE" << EOF
@@ -82,10 +86,18 @@ EOF
     
     if sudo fail2ban-client status sshd &>/dev/null; then
         SSH_STATUS=$(sudo fail2ban-client status sshd 2>/dev/null)
-        CURRENTLY_FAILED=$(echo "$SSH_STATUS" | grep "Currently failed:" | awk '{print $4}' | grep -o '[0-9]*' || echo "0")
-        TOTAL_FAILED=$(echo "$SSH_STATUS" | grep "Total failed:" | awk '{print $4}' | grep -o '[0-9]*' || echo "0")
-        CURRENTLY_BANNED=$(echo "$SSH_STATUS" | grep "Currently banned:" | awk '{print $4}' | grep -o '[0-9]*' || echo "0")
-        TOTAL_BANNED=$(echo "$SSH_STATUS" | grep "Total banned:" | awk '{print $4}' | grep -o '[0-9]*' || echo "0")
+        CURRENTLY_FAILED=$(echo "$SSH_STATUS" | grep "Currently failed:" | awk '{print $4}' | grep -o '[0-9]*')
+        CURRENTLY_FAILED=${CURRENTLY_FAILED:-0}
+
+        TOTAL_FAILED=$(echo "$SSH_STATUS" | grep "Total failed:" | awk '{print $4}' | grep -o '[0-9]*')
+        TOTAL_FAILED=${TOTAL_FAILED:-0}
+
+        CURRENTLY_BANNED=$(echo "$SSH_STATUS" | grep "Currently banned:" | awk '{print $4}' | grep -o '[0-9]*')
+        CURRENTLY_BANNED=${CURRENTLY_BANNED:-0}
+
+        TOTAL_BANNED=$(echo "$SSH_STATUS" | grep "Total banned:" | awk '{print $4}' | grep -o '[0-9]*')
+        TOTAL_BANNED=${TOTAL_BANNED:-0}
+
         BANNED_IP_LIST=$(echo "$SSH_STATUS" | grep "Banned IP list:" | cut -d: -f2 | xargs)
         
         cat >> "$OUTPUT_FILE" << EOF
@@ -99,7 +111,7 @@ EOF
 
 EOF
         
-        if [ -n "$BANNED_IP_LIST" ] && [ "$BANNED_IP_LIST" != "" ]; then
+        if [ -n "$BANNED_IP_LIST" ]; then
             cat >> "$OUTPUT_FILE" << EOF
 #### 🚫 Currently Banned IP Addresses
 

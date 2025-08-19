@@ -304,15 +304,16 @@ harden_ssh() {
                 fi
 
                 echo
-                print_info "To log in to this server using the new SSH key, you need to add the private key to your local machine."
-                echo -e "${YELLOW}Please copy the following public key to your local machine's ~/.ssh/authorized_keys file:${NC}"
+                print_warning "IMPORTANT: The following is your PRIVATE key. Keep it safe and do not share it with anyone."
+                print_info "To log in to this server, you need to save this private key on your local machine."
+                echo -e "${YELLOW}Copy the following private key and save it to a file on your local machine (e.g., ~/.ssh/id_ed25519):${NC}"
                 echo
-                echo -e "${WHITE}$(cat ~/.ssh/id_ed25519.pub)${NC}"
+                echo -e "${WHITE}$(cat ~/.ssh/id_ed25519)${NC}"
                 echo
-                print_warning "IMPORTANT: Make sure you have copied the public key before continuing."
-                print_info "You will not be able to log in with a password after SSH is hardened."
+                print_warning "After saving the key, make sure to set the correct permissions on your local machine:"
+                print_info "chmod 600 ~/.ssh/id_ed25519"
                 echo
-                if ask_yes_no "Have you copied the public key to your local machine?" "n"; then
+                if ask_yes_no "Have you copied and saved the private key to your local machine?" "n"; then
                     print_success "SSH key setup complete."
                 else
                     print_error "SSH key not copied. Aborting to prevent being locked out."
