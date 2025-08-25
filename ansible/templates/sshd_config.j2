@@ -32,7 +32,7 @@ IgnoreRhosts yes
 HostbasedAuthentication no
 PermitUserEnvironment no
 
-# Forwarding Restrictions
+# Forwarding Restrictions - Profile-based configuration
 AllowTcpForwarding {{ ssh_config.allow_tcp_forwarding | default('no') }}
 AllowAgentForwarding {{ ssh_config.allow_agent_forwarding | default('no') }}
 GatewayPorts no

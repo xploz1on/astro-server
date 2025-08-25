@@ -1,0 +1,109 @@
+---
+# Astro Server - Web Server Profile Configuration
+# Optimized for web applications with balanced security
+
+# Profile Identification
+astro_security_profile: "webserver"
+profile_description: "Optimized for web servers (Apache/Nginx/Node.js) - asks about VS Code support"
+
+# VS Code Integration - Will be asked during deployment
+vscode_remote_enabled: "{{ ask_vscode_support | default(false) }}"
+enable_tcp_forwarding: "{{ ask_vscode_support | default(false) }}"
+
+# SSH Configuration - High security with web-specific settings
+ssh_config:
+  permit_root_login: "no"
+  password_authentication: "no"  # Keys only for web servers
+  pubkey_authentication: "yes"
+  challenge_response_auth: "no"
+  x11_forwarding: "no"
+  allow_tcp_forwarding: "{{ 'yes' if enable_tcp_forwarding else 'no' }}"
+  allow_agent_forwarding: "{{ 'yes' if enable_tcp_forwarding else 'no' }}"
+  client_alive_interval: 300
+  client_alive_count_max: 2
+  login_grace_time: 45  # Reasonable for deployment
+  max_sessions: 3  # Allow deployment connections
+  compression: "{{ 'yes' if enable_tcp_forwarding else 'no' }}"
+  strict_modes: "yes"
+
+# Fail2Ban Configuration - Web server protection
+fail2ban_config:
+  default_banaction: "iptables-multiport"
+  default_mta: "sendmail"
+
+# Firewall Configuration - Web server ports
+firewall_rules:
+  webserver:
+    - { port: "22", proto: "tcp", comment: "SSH" }
+    - { port: "80", proto: "tcp", comment: "HTTP" }
+    - { port: "443", proto: "tcp", comment: "HTTPS" }
+    - { port: "8080", proto: "tcp", comment: "Alternative HTTP" }
+    - { port: "8443", proto: "tcp", comment: "Alternative HTTPS" }
+
+# Kernel Security - Web server hardening
+kernel_security:
+  network:
+    ip_forward: 0
+    send_redirects: 0
+    accept_redirects: 0
+    accept_source_route: 0
+    rp_filter: 1
+    icmp_echo_ignore_all: 0  # Allow ping for monitoring
+    icmp_echo_ignore_broadcasts: 1
+    tcp_syncookies: 1
+    disable_ipv6: 0  # Keep IPv6 for web access
+
+  security:
+    dmesg_restrict: 1
+    kptr_restrict: 1
+    randomize_va_space: 2
+
+# Package Management - Web server tools
+packages:
+  debian:
+    security:
+      - fail2ban
+      - ufw
+      - unattended-upgrades
+      - git
+      - curl
+      - wget
+    webserver:
+      - apache2-utils
+      - nginx
+      - certbot
+      - python3-certbot-apache
+    monitoring:
+      - htop
+      - iotop
+      - nethogs
+      - apache2-utils
+      - goaccess
+
+# Monitoring and Reporting - Web-specific monitoring
+monitoring:
+  enable_security_reports: true
+  report_frequency: "daily"
+  webserver_mode: true
+  monitor_web_traffic: true
+
+# Update Management - Web server updates
+updates:
+  enable_auto_updates: true
+  auto_reboot: false  # Careful with web server reboots
+  auto_reboot_time: "02:00"
+  update_package_lists: true
+
+# Logging - Web server logging
+logging:
+  ssh_log_level: "INFO"
+  fail2ban_log_level: "INFO"
+  syslog_facility: "AUTH"
+  enable_web_logging: true
+
+# Web server-specific settings
+webserver:
+  enable_web_hardening: true
+  configure_ssl: true
+  enable_rate_limiting: true
+  monitor_response_times: true

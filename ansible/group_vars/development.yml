@@ -1,0 +1,105 @@
+---
+# Astro Server - Development Profile Configuration
+# Optimized for development environments with VS Code support
+
+# Profile Identification
+astro_security_profile: "development"
+profile_description: "Development servers with VS Code remote development support"
+
+# VS Code Integration
+vscode_remote_enabled: true
+enable_tcp_forwarding: true
+
+# SSH Configuration - Moderate security for development
+ssh_config:
+  permit_root_login: "no"
+  password_authentication: "yes"  # Allow passwords for development convenience
+  pubkey_authentication: "yes"
+  challenge_response_auth: "no"
+  x11_forwarding: "no"
+  allow_tcp_forwarding: "yes"  # Required for VS Code
+  allow_agent_forwarding: "yes"  # Useful for development
+  client_alive_interval: 300
+  client_alive_count_max: 3
+  login_grace_time: 60  # More lenient for development
+  max_sessions: 5  # Allow multiple connections
+  compression: "yes"  # Enable compression for better performance
+  strict_modes: "yes"
+
+# Fail2Ban Configuration - Moderate protection
+fail2ban_config:
+  default_banaction: "iptables-multiport"
+  default_mta: "sendmail"
+
+# Firewall Configuration - Development-friendly
+firewall_rules:
+  development:
+    - { port: "22", proto: "tcp", comment: "SSH with VS Code support" }
+    - { port: "80", proto: "tcp", comment: "HTTP development" }
+    - { port: "443", proto: "tcp", comment: "HTTPS development" }
+    - { port: "3000", proto: "tcp", comment: "Node.js development" }
+    - { port: "8000", proto: "tcp", comment: "Python development" }
+    - { port: "8080", proto: "tcp", comment: "Java development" }
+    - { port: "9000", proto: "tcp", comment: "PHP development" }
+
+# Kernel Security - Basic hardening
+kernel_security:
+  network:
+    ip_forward: 0
+    send_redirects: 0
+    accept_redirects: 0
+    accept_source_route: 0
+    rp_filter: 1
+    icmp_echo_ignore_all: 0  # Allow ping for development
+    icmp_echo_ignore_broadcasts: 1
+    tcp_syncookies: 1
+    disable_ipv6: 0  # Keep IPv6 for development
+
+  security:
+    dmesg_restrict: 0  # Allow dmesg for debugging
+    kptr_restrict: 1
+    randomize_va_space: 2
+
+# Package Management
+packages:
+  debian:
+    security:
+      - fail2ban
+      - ufw
+      - unattended-upgrades
+      - git
+      - curl
+      - wget
+      - htop
+      - iotop
+      - nethogs
+    development:
+      - build-essential
+      - python3-dev
+      - nodejs
+      - npm
+
+# Monitoring and Reporting
+monitoring:
+  enable_security_reports: true
+  report_frequency: "daily"
+  development_mode: true
+
+# Update Management - More frequent for development
+updates:
+  enable_auto_updates: true
+  auto_reboot: false
+  auto_reboot_time: "02:00"
+  update_package_lists: true
+
+# Logging - More verbose for development
+logging:
+  ssh_log_level: "VERBOSE"
+  fail2ban_log_level: "INFO"
+  syslog_facility: "AUTH"
+
+# Development-specific settings
+development:
+  enable_debug_mode: true
+  allow_remote_debugging: true
+  enable_development_tools: true

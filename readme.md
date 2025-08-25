@@ -43,10 +43,13 @@ Available Operations:
   0) 🚪 Exit                     - Exit Astro Server
 
 Quick Profiles:
-  w) 🌐 Web Server              - Optimized for web servers
-  d) 🗄️  Database Server        - Optimized for databases
-  a) ⚡ Aggressive              - High security settings
-  p) 🔒 Paranoid                - Maximum security
+  dev) 💻 Development           - VS Code compatible
+  prod) 🔴 Production          - Maximum security
+  bal) 🟡 Balanced             - Asks about VS Code
+  web) 🌐 Web Server           - Web applications
+  db) 🗄️  Database             - Database servers
+  a) ⚡ Aggressive              - High security (legacy)
+  p) 🔒 Paranoid                - Maximum security (legacy)
 
 Enter your choice:
 ```
@@ -57,10 +60,11 @@ Enter your choice:
 
 ```bash
 # Quick hardening with specific profiles
-./astro harden --profile web         # Web server optimized
-./astro harden --profile database    # Database server optimized
-./astro harden --profile aggressive  # High security
-./astro harden --profile paranoid    # Maximum security
+./astro harden --profile development # VS Code compatible development
+./astro harden --profile production  # Maximum security for production
+./astro harden --profile balanced    # Asks about VS Code support
+./astro harden --profile webserver   # Optimized for web applications
+./astro harden --profile database    # Maximum security for databases
 
 # Generate security report
 ./astro report
@@ -71,6 +75,30 @@ Enter your choice:
 # Multi-server deployment
 ./astro deploy --inventory hosts
 ```
+
+### 💻 VS Code Remote Development Support
+
+Astro Server includes intelligent VS Code compatibility:
+
+```bash
+# 🚀 RECOMMENDED: Interactive approach (safest)
+./astro
+# Choose "1" then select "bal" for balanced profile
+# You'll be asked about VS Code support during deployment
+
+# Quick shortcuts for VS Code users
+./astro dev     # Development profile (always VS Code compatible)
+./astro bal     # Balanced profile (asks about VS Code)
+
+# For production servers (VS Code disabled by design)
+./astro prod    # Production profile (maximum security)
+```
+
+**🛡️ Safety First**: Astro Server will **never** break your SSH connection. All changes are applied safely with:
+- Automatic SSH connection verification
+- Backup creation before modifications
+- Interactive confirmation for risky changes
+- Easy rollback capabilities
 
 ## 📋 Table of Contents
 
@@ -105,8 +133,10 @@ Enter your choice:
 - 🐧 **Multi-Distro Support** - Ubuntu, Debian, Fedora, RHEL, Arch Linux support
 - 📱 **Real-time Monitoring** - Continuous security status tracking and alerting
 - 🎯 **Zero-Config Setup** - Smart defaults with expert recommendations
-- 🔧 **Customizable Profiles** - Pre-built configurations for different server types
-- 🚀 **Quick Profile Access** - Instant access to web, database, aggressive, and paranoid profiles
+- 🔧 **5 Security Profiles** - Development, Production, Balanced, Web Server, Database
+- 🚀 **VS Code Integration** - Intelligent remote development support
+- 🛡️ **Never Breaks SSH** - Safe deployment with automatic verification
+- 📊 **VS Code Compatibility Reports** - Know your remote development status
 
 ## 🛡️ Security Features
 
@@ -260,30 +290,34 @@ astro-server/configs/firewall/
 
 ```
 astro-server/
-├── astro                     # 🎯 Main launcher script
+├── astro                     # 🎯 Main launcher script (improved with new profiles)
 ├── scripts/                  # 🔧 Core security scripts
 │   ├── Astro-server.sh          # Interactive hardening wizard
-│   ├── security-report.sh       # Markdown report generator  
+│   └── security-report.sh       # Markdown report generator (VS Code checks)
 ├── ansible/                  # 🤖 Multi-server automation
 │   ├── playbooks/               # Deployment playbooks
+│   │   └── harden-servers.yml    # Main hardening playbook (profile-aware)
 │   ├── inventory/               # Server inventories
-│   ├── group_vars/              # Configuration variables
-│   └── roles/                   # Reusable Ansible roles
-├── configs/                  # ⚙️ Security templates
-│   ├── ssh/                     # SSH hardening configs
-│   ├── fail2ban/                # Intrusion prevention rules
-│   └── firewall/                # Firewall rule templates
+│   ├── group_vars/              # Profile-based configuration variables
+│   │   ├── development.yml       # Development profile (VS Code enabled)
+│   │   ├── production.yml        # Production profile (maximum security)
+│   │   ├── balanced.yml          # Balanced profile (asks about VS Code)
+│   │   ├── database.yml          # Database profile (secure DB server)
+│   │   ├── webserver.yml         # Web server profile (web optimized)
+│   │   └── all.yml               # Global variables
+│   ├── tasks/                   # Reusable task files
+│   └── templates/               # Jinja2 configuration templates
+│       ├── sshd_config.j2       # SSH hardening template (profile-aware)
+│       └── jail.local.j2        # Fail2Ban configuration template
+├── configs/                  # ⚙️ Security templates (legacy)
 ├── docs/                     # 📚 Comprehensive documentation
+│   ├── PROFILES.md              # Detailed profile documentation
 │   ├── INSTALL.md               # Installation guide
 │   ├── STANDALONE-USAGE.md      # Single server usage
-│   ├── ANSIBLE-USAGE.md         # Multi-server deployment
-│   └── changelog.md             # Security audit history
-├── .github/                  # 🔄 GitHub automation
-│   ├── workflows/               # CI/CD pipelines
-│   └── ISSUE_TEMPLATE/          # Issue templates
+│   └── ANSIBLE-USAGE.md         # Multi-server deployment
 ├── LICENSE                   # 📄 Apache 2.0 License
 ├── CONTRIBUTING.md           # 🤝 Contribution guidelines
-└── README.md                 # 📖 This file
+└── README.md                 # 📖 This file (updated with new features)
 ```
 
 | Guide | Description | Audience |

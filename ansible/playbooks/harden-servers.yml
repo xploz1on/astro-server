@@ -11,9 +11,21 @@
     # Default security settings
     astro_security_profile: "{{ astro_security_profile | default('balanced') }}"
     astro_enable_fail2ban: "{{ astro_enable_fail2ban | default(true) }}"
-    astro_enable_firewall: "{{ astro_enable_firewall | default(false) }}"
+    astro_enable_firewall: "{{ astro_enable_firewall | default(true) }}"
     astro_ssh_port: "{{ astro_ssh_port | default(22) }}"
     astro_ban_time: "{{ astro_ban_time | default(3600) }}"
+
+    # VS Code Integration - Will be asked during deployment
+    ask_vscode_support: "{{ ask_vscode_support | default(false) }}"
+    enable_tcp_forwarding: "{{ enable_tcp_forwarding | default(false) }}"
+
+    # Profile descriptions for user reference
+    profile_descriptions:
+      development: "Development servers with VS Code support - Moderate security"
+      production: "Maximum security for production servers - NOT VS Code compatible"
+      balanced: "Balanced security with development flexibility - Asks about VS Code"
+      database: "Maximum security for database servers - Optimized for data protection"
+      webserver: "Optimized for web applications - Balanced security with web ports"
 
   pre_tasks:
     - name: Gather Distribution Information
@@ -29,8 +41,52 @@
           Hardening {{ inventory_hostname }}
           OS: {{ ansible_distribution }} {{ ansible_distribution_version }}
           Profile: {{ astro_security_profile }}
+          Description: {{ profile_descriptions[astro_security_profile] }}
           Fail2Ban: {{ astro_enable_fail2ban }}
           Firewall: {{ astro_enable_firewall }}
+
+    - name: VS Code Support Check (Interactive)
+      ansible.builtin.pause:
+        prompt: |
+          🛡️  ASTRO SERVER - VS CODE COMPATIBILITY CHECK
+
+          Profile: {{ astro_security_profile }}
+          Description: {{ profile_descriptions[astro_security_profile] }}
+
+          Do you want to enable VS Code remote development support?
+          This will configure TCP forwarding for VS Code connections.
+
+          ⚠️  WARNING: Enabling this reduces security for development convenience
+
+          Options:
+          - 'yes' or 'y': Enable VS Code support (allows TCP forwarding)
+          - 'no' or 'n': Disable VS Code support (maximum security)
+          - Press Enter for profile default
+
+          Your choice:
+        echo: true
+      register: vscode_response
+      when:
+        - astro_security_profile in ['balanced', 'webserver']
+        - ask_vscode_support is not defined
+      failed_when: false
+
+    - name: Set VS Code Support Based on Response
+      ansible.builtin.set_fact:
+        ask_vscode_support: "{{ vscode_response.user_input | default('no') | lower in ['yes', 'y', 'true', '1'] }}"
+      when: vscode_response.user_input is defined
+
+    - name: Display VS Code Configuration
+      ansible.builtin.debug:
+        msg: |
+          🛡️  VS Code Configuration for {{ inventory_hostname }}:
+          {%- if astro_security_profile in ['balanced', 'webserver'] %}
+          VS Code Support: {{ 'ENABLED' if ask_vscode_support else 'DISABLED' }}
+          TCP Forwarding: {{ 'ENABLED' if ask_vscode_support else 'DISABLED' }}
+          {%- else %}
+          VS Code Support: {{ 'ENABLED (Profile Default)' if astro_security_profile == 'development' else 'DISABLED (Profile Default)' }}
+          {%- endif %}
+          Security Profile: {{ astro_security_profile }}
 
   tasks:
     # SSH Key Generation

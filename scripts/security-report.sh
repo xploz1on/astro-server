@@ -140,14 +140,18 @@ cat >> "$OUTPUT_FILE" << EOF
 EOF
 
 # Check SSH settings
-ROOT_LOGIN=$(sudo grep "^PermitRootLogin" /etc/ssh/sshd_config 2>/dev/null | head -1 || echo "PermitRootLogin not set")
-PASSWORD_AUTH=$(sudo grep "^PasswordAuthentication" /etc/ssh/sshd_config 2>/dev/null | head -1 || echo "PasswordAuthentication not set")
+ROOT_LOGIN=$(sudo grep "^PermitRootLogin" /etc/ssh/sshd_config* 2>/dev/null | head -1 || echo "PermitRootLogin not set")
+PASSWORD_AUTH=$(sudo grep "^PasswordAuthentication" /etc/ssh/sshd_config* 2>/dev/null | head -1 || echo "PasswordAuthentication not set")
 MAX_AUTH_TRIES=$(sudo grep "^MaxAuthTries" /etc/ssh/sshd_config* 2>/dev/null | head -1 || echo "MaxAuthTries default")
+TCP_FORWARDING=$(sudo grep "^AllowTcpForwarding" /etc/ssh/sshd_config* 2>/dev/null | head -1 || echo "AllowTcpForwarding default")
+AGENT_FORWARDING=$(sudo grep "^AllowAgentForwarding" /etc/ssh/sshd_config* 2>/dev/null | head -1 || echo "AllowAgentForwarding default")
 
 cat >> "$OUTPUT_FILE" << EOF
 | Root Login | $(echo "$ROOT_LOGIN" | grep -q "no" && echo "🟢 Disabled" || echo "🔴 Enabled") | \`$ROOT_LOGIN\` |
 | Password Authentication | $(echo "$PASSWORD_AUTH" | grep -q "no" && echo "🟢 Disabled" || echo "🔴 Enabled") | \`$PASSWORD_AUTH\` |
 | Max Auth Tries | $(echo "$MAX_AUTH_TRIES" | grep -q "MaxAuthTries" && echo "🟢 Limited" || echo "🟡 Default") | \`$MAX_AUTH_TRIES\` |
+| TCP Forwarding | $(echo "$TCP_FORWARDING" | grep -q "yes" && echo "🟢 Enabled" || echo "🟡 Disabled") | \`$TCP_FORWARDING\` |
+| Agent Forwarding | $(echo "$AGENT_FORWARDING" | grep -q "yes" && echo "🟢 Enabled" || echo "🟡 Disabled") | \`$AGENT_FORWARDING\` |
 
 ---
 
@@ -286,8 +290,79 @@ else
 EOF
 fi
 
-# Security Recommendations
+# VS Code Compatibility Check
 cat >> "$OUTPUT_FILE" << EOF
+
+---
+
+## 💻 VS Code Remote Development Compatibility
+
+### TCP Forwarding Status
+EOF
+
+# Check TCP forwarding and provide VS Code guidance
+if echo "$TCP_FORWARDING" | grep -q "yes"; then
+    cat >> "$OUTPUT_FILE" << EOF
+🟢 **VS Code Compatible** - TCP forwarding is enabled
+
+Your server is configured for VS Code remote development. You can:
+- Connect via VS Code Remote-SSH extension
+- Use port forwarding for local development
+- Debug applications remotely
+
+#### VS Code Connection String:
+\`\`\`
+ssh $(whoami)@$(hostname -I | awk '{print $1}') -A
+\`\`\`
+EOF
+else
+    cat >> "$OUTPUT_FILE" << EOF
+🟡 **VS Code Limited** - TCP forwarding is disabled
+
+**Current Status**: Maximum security (recommended for production)
+**Impact**: VS Code remote development will not work
+**Alternative**: Use local development or redeploy with 'development' profile
+
+#### To Enable VS Code Support:
+1. Redeploy with \`development\` profile: \`--profile development\`
+2. Or use \`balanced\` profile and enable VS Code when prompted
+3. Or use \`webserver\` profile and enable VS Code when prompted
+EOF
+fi
+
+cat >> "$OUTPUT_FILE" << EOF
+
+### Profile-Specific Recommendations
+
+#### Development Profile
+- **Best for**: Local development, testing environments
+- **VS Code**: ✅ Fully supported
+- **Security**: Moderate (password auth enabled)
+- **Use Case**: Development and staging servers
+
+#### Production Profile
+- **Best for**: Live production servers
+- **VS Code**: ❌ Not supported (by design)
+- **Security**: Maximum (keys only, no forwarding)
+- **Use Case**: Public-facing production systems
+
+#### Balanced Profile
+- **Best for**: Mixed environments
+- **VS Code**: ❓ Asks during deployment
+- **Security**: High (keys only, conditional forwarding)
+- **Use Case**: Internal tools, UAT environments
+
+#### Database Profile
+- **Best for**: Database servers
+- **VS Code**: ❌ Not supported (security first)
+- **Security**: Maximum (restricted access)
+- **Use Case**: MySQL, PostgreSQL, MongoDB servers
+
+#### Web Server Profile
+- **Best for**: Web applications
+- **VS Code**: ❓ Asks during deployment
+- **Security**: High (web-optimized)
+- **Use Case**: Apache, Nginx, Node.js servers
 
 ---
 

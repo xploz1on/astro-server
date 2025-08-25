@@ -1,0 +1,94 @@
+---
+# Astro Server - Production Profile Configuration
+# Maximum security for live production servers
+
+# Profile Identification
+astro_security_profile: "production"
+profile_description: "Maximum security for production servers - NOT compatible with VS Code"
+
+# VS Code Integration
+vscode_remote_enabled: false
+enable_tcp_forwarding: false
+
+# SSH Configuration - Maximum security
+ssh_config:
+  permit_root_login: "no"
+  password_authentication: "no"  # Keys only for production
+  pubkey_authentication: "yes"
+  challenge_response_auth: "no"
+  x11_forwarding: "no"
+  allow_tcp_forwarding: "no"  # Disabled for security - breaks VS Code intentionally
+  allow_agent_forwarding: "no"  # Disabled for security
+  client_alive_interval: 300
+  client_alive_count_max: 2
+  login_grace_time: 30  # Strict timeout
+  max_sessions: 2  # Limited connections
+  compression: "no"  # Disabled for security
+  strict_modes: "yes"
+
+# Fail2Ban Configuration - Aggressive protection
+fail2ban_config:
+  default_banaction: "iptables-multiport"
+  default_mta: "sendmail"
+
+# Firewall Configuration - Minimal exposure
+firewall_rules:
+  production:
+    - { port: "22", proto: "tcp", comment: "SSH only" }
+
+# Kernel Security - Maximum hardening
+kernel_security:
+  network:
+    ip_forward: 0
+    send_redirects: 0
+    accept_redirects: 0
+    accept_source_route: 0
+    rp_filter: 1
+    icmp_echo_ignore_all: 1  # Block all ICMP for security
+    icmp_echo_ignore_broadcasts: 1
+    tcp_syncookies: 1
+    disable_ipv6: 1  # Disable IPv6 in production
+
+  security:
+    dmesg_restrict: 1
+    kptr_restrict: 2
+    randomize_va_space: 2
+
+# Package Management - Minimal packages
+packages:
+  debian:
+    security:
+      - fail2ban
+      - ufw
+      - unattended-upgrades
+      - apt-listchanges
+      - logwatch
+    monitoring:
+      - htop
+      - iotop
+      - nethogs
+
+# Monitoring and Reporting
+monitoring:
+  enable_security_reports: true
+  report_frequency: "hourly"  # More frequent monitoring
+  production_mode: true
+
+# Update Management - Strict control
+updates:
+  enable_auto_updates: true
+  auto_reboot: true  # Allow reboots in production with maintenance windows
+  auto_reboot_time: "03:00"  # Maintenance window
+  update_package_lists: true
+
+# Logging - Maximum verbosity for security monitoring
+logging:
+  ssh_log_level: "VERBOSE"
+  fail2ban_log_level: "DEBUG"
+  syslog_facility: "AUTH"
+
+# Production-specific settings
+production:
+  enable_strict_mode: true
+  disable_unused_services: true
+  enable_audit_logging: true

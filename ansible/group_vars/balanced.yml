@@ -1,0 +1,98 @@
+---
+# Astro Server - Balanced Profile Configuration
+# Good security with development flexibility - asks about VS Code
+
+# Profile Identification
+astro_security_profile: "balanced"
+profile_description: "Balanced security with development flexibility - asks about VS Code support"
+
+# VS Code Integration - Will be asked during deployment
+vscode_remote_enabled: "{{ ask_vscode_support | default(false) }}"
+enable_tcp_forwarding: "{{ ask_vscode_support | default(false) }}"
+
+# SSH Configuration - High security with some flexibility
+ssh_config:
+  permit_root_login: "no"
+  password_authentication: "no"  # Keys only
+  pubkey_authentication: "yes"
+  challenge_response_auth: "no"
+  x11_forwarding: "no"
+  allow_tcp_forwarding: "{{ 'yes' if enable_tcp_forwarding else 'no' }}"
+  allow_agent_forwarding: "{{ 'yes' if enable_tcp_forwarding else 'no' }}"
+  client_alive_interval: 300
+  client_alive_count_max: 2
+  login_grace_time: 45  # Reasonable timeout
+  max_sessions: 3  # Limited multiple connections
+  compression: "{{ 'yes' if enable_tcp_forwarding else 'no' }}"
+  strict_modes: "yes"
+
+# Fail2Ban Configuration - Balanced protection
+fail2ban_config:
+  default_banaction: "iptables-multiport"
+  default_mta: "sendmail"
+
+# Firewall Configuration - Essential services
+firewall_rules:
+  balanced:
+    - { port: "22", proto: "tcp", comment: "SSH" }
+    - { port: "80", proto: "tcp", comment: "HTTP" }
+    - { port: "443", proto: "tcp", comment: "HTTPS" }
+
+# Kernel Security - Good hardening
+kernel_security:
+  network:
+    ip_forward: 0
+    send_redirects: 0
+    accept_redirects: 0
+    accept_source_route: 0
+    rp_filter: 1
+    icmp_echo_ignore_all: 0  # Allow ping for monitoring
+    icmp_echo_ignore_broadcasts: 1
+    tcp_syncookies: 1
+    disable_ipv6: 0  # Keep IPv6
+
+  security:
+    dmesg_restrict: 1
+    kptr_restrict: 1
+    randomize_va_space: 2
+
+# Package Management - Balanced set
+packages:
+  debian:
+    security:
+      - fail2ban
+      - ufw
+      - unattended-upgrades
+      - git
+      - curl
+      - wget
+    monitoring:
+      - htop
+      - iotop
+      - nethogs
+      - monitoring-plugins
+
+# Monitoring and Reporting
+monitoring:
+  enable_security_reports: true
+  report_frequency: "daily"
+  balanced_mode: true
+
+# Update Management - Regular updates
+updates:
+  enable_auto_updates: true
+  auto_reboot: false
+  auto_reboot_time: "02:00"
+  update_package_lists: true
+
+# Logging - Balanced verbosity
+logging:
+  ssh_log_level: "INFO"
+  fail2ban_log_level: "INFO"
+  syslog_facility: "AUTH"
+
+# Balanced-specific settings
+balanced:
+  enable_flexible_mode: true
+  ask_before_changes: true
+  enable_monitoring: true

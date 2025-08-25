@@ -1,0 +1,107 @@
+---
+# Astro Server - Database Profile Configuration
+# Optimized for database servers with maximum security
+
+# Profile Identification
+astro_security_profile: "database"
+profile_description: "Maximum security for database servers - optimized for MySQL/PostgreSQL/MongoDB"
+
+# VS Code Integration - Disabled for security
+vscode_remote_enabled: false
+enable_tcp_forwarding: false
+
+# SSH Configuration - Maximum security for databases
+ssh_config:
+  permit_root_login: "no"
+  password_authentication: "no"  # Keys only
+  pubkey_authentication: "yes"
+  challenge_response_auth: "no"
+  x11_forwarding: "no"
+  allow_tcp_forwarding: "no"  # Disabled for security
+  allow_agent_forwarding: "no"  # Disabled for security
+  client_alive_interval: 300
+  client_alive_count_max: 2
+  login_grace_time: 30  # Strict timeout
+  max_sessions: 2  # Limited connections
+  compression: "no"  # Disabled for performance
+  strict_modes: "yes"
+
+# Fail2Ban Configuration - Aggressive database protection
+fail2ban_config:
+  default_banaction: "iptables-multiport"
+  default_mta: "sendmail"
+
+# Firewall Configuration - Database-specific ports
+firewall_rules:
+  database:
+    - { port: "22", proto: "tcp", comment: "SSH" }
+    - { port: "3306", proto: "tcp", source: "10.0.0.0/8", comment: "MySQL/MariaDB" }
+    - { port: "5432", proto: "tcp", source: "10.0.0.0/8", comment: "PostgreSQL" }
+    - { port: "27017", proto: "tcp", source: "10.0.0.0/8", comment: "MongoDB" }
+    - { port: "6379", proto: "tcp", source: "10.0.0.0/8", comment: "Redis" }
+
+# Kernel Security - Maximum hardening for sensitive data
+kernel_security:
+  network:
+    ip_forward: 0
+    send_redirects: 0
+    accept_redirects: 0
+    accept_source_route: 0
+    rp_filter: 1
+    icmp_echo_ignore_all: 1  # Block ICMP for security
+    icmp_echo_ignore_broadcasts: 1
+    tcp_syncookies: 1
+    disable_ipv6: 1  # Disable IPv6
+
+  security:
+    dmesg_restrict: 1
+    kptr_restrict: 2
+    randomize_va_space: 2
+
+# Package Management - Database-specific tools
+packages:
+  debian:
+    security:
+      - fail2ban
+      - ufw
+      - unattended-upgrades
+      - apt-listchanges
+    database:
+      - mysql-client
+      - postgresql-client
+      - mongodb-clients
+      - redis-tools
+    monitoring:
+      - htop
+      - iotop
+      - nethogs
+      - mytop
+      - pg-top
+
+# Monitoring and Reporting - Enhanced for databases
+monitoring:
+  enable_security_reports: true
+  report_frequency: "hourly"  # More frequent for critical systems
+  database_mode: true
+  monitor_database_connections: true
+
+# Update Management - Careful updates for databases
+updates:
+  enable_auto_updates: false  # Manual control for databases
+  auto_reboot: false
+  auto_reboot_time: "04:00"  # Off-peak maintenance window
+  update_package_lists: true
+
+# Logging - Maximum verbosity for database security
+logging:
+  ssh_log_level: "VERBOSE"
+  fail2ban_log_level: "DEBUG"
+  syslog_facility: "AUTH"
+  enable_database_logging: true
+
+# Database-specific settings
+database:
+  enable_database_hardening: true
+  restrict_network_access: true
+  enable_backup_validation: true
+  monitor_connection_limits: true

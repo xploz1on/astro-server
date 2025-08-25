@@ -74,12 +74,14 @@ ${BOLD}MULTI-SERVER OPERATIONS:${NC}
   $0 reports --all             # Generate reports for all servers
 
 ${BOLD}PROFILES:${NC}
-  ${GREEN}minimal${NC}     - Basic security hardening
-  ${YELLOW}balanced${NC}    - Recommended security settings (default)
-  ${RED}aggressive${NC}  - High security with strict policies
-  ${PURPLE}paranoid${NC}    - Maximum security (may impact usability)
-  ${BLUE}web-server${NC}  - Optimized for web servers
-  ${CYAN}database${NC}    - Optimized for database servers
+  ${GREEN}development${NC} - Development servers with VS Code support
+  ${YELLOW}balanced${NC}    - Balanced security, asks about VS Code (default)
+  ${RED}production${NC}  - Maximum security, VS Code disabled
+  ${BLUE}webserver${NC}   - Optimized for web applications
+  ${CYAN}database${NC}    - Maximum security for database servers
+  ${PURPLE}minimal${NC}     - Basic security (legacy)
+  ${RED}aggressive${NC}  - High security (legacy)
+  ${PURPLE}paranoid${NC}    - Maximum security (legacy)
 
 ${BOLD}EXAMPLES:${NC}
   $0 harden --profile aggressive
@@ -483,10 +485,13 @@ show_interactive_menu() {
         echo -e "  ${GREEN}0)${NC} 🚪 ${CYAN}Exit${NC}                     - Exit Astro Server"
         echo
         echo -e "${YELLOW}${BOLD}Quick Profiles:${NC}"
-        echo -e "  ${GREEN}w)${NC} 🌐 ${CYAN}Web Server${NC}              - Optimized for web servers"
-        echo -e "  ${GREEN}d)${NC} 🗄️  ${CYAN}Database Server${NC}        - Optimized for databases"
-        echo -e "  ${GREEN}a)${NC} ⚡ ${CYAN}Aggressive${NC}               - High security settings"
-        echo -e "  ${GREEN}p)${NC} 🔒 ${CYAN}Paranoid${NC}                 - Maximum security"
+        echo -e "  ${GREEN}dev)${NC} 💻 ${CYAN}Development${NC}             - VS Code compatible"
+        echo -e "  ${GREEN}prod)${NC} 🔴 ${CYAN}Production${NC}            - Maximum security"
+        echo -e "  ${GREEN}bal)${NC} 🟡 ${CYAN}Balanced${NC}               - Asks about VS Code"
+        echo -e "  ${GREEN}web)${NC} 🌐 ${CYAN}Web Server${NC}             - Web applications"
+        echo -e "  ${GREEN}db)${NC} 🗄️  ${CYAN}Database${NC}               - Database servers"
+        echo -e "  ${GREEN}a)${NC} ⚡ ${CYAN}Aggressive${NC}              - High security (legacy)"
+        echo -e "  ${GREEN}p)${NC} 🔒 ${CYAN}Paranoid${NC}               - Maximum security (legacy)"
         echo
         echo -e "${BLUE}💡 Tip: You can also use command line arguments like:${NC}"
         echo -e "   ${WHITE}$0 harden --profile web${NC}"
@@ -588,6 +593,41 @@ show_interactive_menu() {
                 preflight_harden_notice
                 ensure_script "$SCRIPTS_DIR/Astro-server.sh" || continue
                 "$SCRIPTS_DIR/Astro-server.sh" --profile paranoid
+                break
+                ;;
+            dev)
+                echo -e "${CYAN}💻 Starting development hardening (VS Code compatible)...${NC}"
+                preflight_harden_notice
+                ensure_script "$SCRIPTS_DIR/Astro-server.sh" || continue
+                "$SCRIPTS_DIR/Astro-server.sh" --profile development
+                break
+                ;;
+            prod)
+                echo -e "${CYAN}🔴 Starting production hardening (maximum security)...${NC}"
+                preflight_harden_notice
+                ensure_script "$SCRIPTS_DIR/Astro-server.sh" || continue
+                "$SCRIPTS_DIR/Astro-server.sh" --profile production
+                break
+                ;;
+            bal)
+                echo -e "${CYAN}🟡 Starting balanced hardening (asks about VS Code)...${NC}"
+                preflight_harden_notice
+                ensure_script "$SCRIPTS_DIR/Astro-server.sh" || continue
+                "$SCRIPTS_DIR/Astro-server.sh" --profile balanced
+                break
+                ;;
+            web)
+                echo -e "${CYAN}🌐 Starting web server hardening...${NC}"
+                preflight_harden_notice
+                ensure_script "$SCRIPTS_DIR/Astro-server.sh" || continue
+                "$SCRIPTS_DIR/Astro-server.sh" --profile webserver
+                break
+                ;;
+            db)
+                echo -e "${CYAN}🗄️  Starting database server hardening...${NC}"
+                preflight_harden_notice
+                ensure_script "$SCRIPTS_DIR/Astro-server.sh" || continue
+                "$SCRIPTS_DIR/Astro-server.sh" --profile database
                 break
                 ;;
             *)
