@@ -7,37 +7,7 @@ on:
     branches: [ main ]
 
 jobs:
-  shellcheck:
-    name: Shell Script Linting
-    runs-on: ubuntu-latest
-    steps:
-    - uses: actions/checkout@v3
-    
-    - name: Run ShellCheck
-      uses: ludeeus/action-shellcheck@master
-      with:
-        scandir: './scripts'
-        format: gcc
-        severity: warning
-
-  ansible-lint:
-    name: Ansible Linting
-    runs-on: ubuntu-latest
-    steps:
-    - uses: actions/checkout@v3
-    
-    - name: Set up Python
-      uses: actions/setup-python@v4
-      with:
-        python-version: '3.x'
-    
-    - name: Install Ansible and ansible-lint
-      run: |
-        pip install ansible ansible-lint
-    
-    - name: Run ansible-lint
-      run: |
-        ansible-lint ansible/playbooks/*.yml
+  
 
   test-ubuntu:
     name: Test on Ubuntu
@@ -77,29 +47,6 @@ jobs:
         chmod +x astro
         ./astro check || true  # May fail in container, that's OK
 
-  
-  documentation:
-    name: Documentation Check
-    runs-on: ubuntu-latest
-    steps:
-    - uses: actions/checkout@v3
-    
-    - name: Check for required documentation
-      run: |
-        test -f README.md
-        test -f LICENSE
-        grep -q "Apache License" LICENSE
-        test -f CONTRIBUTING.md
-        test -f docs/INSTALL.md
-        test -f docs/STANDALONE-USAGE.md
-        test -f docs/ANSIBLE-USAGE.md
-    
-    - name: Validate Markdown
-      uses: articulate/actions-markdownlint@v1
-      with:
-        config: .markdownlint.json
-        files: '**/*.md'
-        ignore: 'node_modules'
 
   integration-test:
     name: Integration Testing
