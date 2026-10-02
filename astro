@@ -30,6 +30,20 @@ fi
 # Version
 VERSION="1.0.0"
 
+get_telemetry() {
+    local host os kern up
+    host="$(hostname -s 2>/dev/null || hostname 2>/dev/null || echo 'localhost')"
+    if [ -f /etc/os-release ]; then
+        os="$(grep PRETTY_NAME /etc/os-release 2>/dev/null | cut -d'"' -f2 || echo 'Linux')"
+    else
+        os="$(uname -s 2>/dev/null || echo 'Unknown')"
+    fi
+    kern="$(uname -r 2>/dev/null || echo 'N/A')"
+    up="$(uptime 2>/dev/null | awk -F'(up |user)' '{print $2}' | awk -F',' '{print $1}' | xargs 2>/dev/null || echo 'N/A')"
+    
+    echo -e "    ${BLUE}Host:${NC} ${WHITE}${host}${NC}  │  ${BLUE}OS:${NC} ${WHITE}${os}${NC}  │  ${BLUE}Kernel:${NC} ${WHITE}${kern}${NC}  │  ${BLUE}Uptime:${NC} ${WHITE}${up}${NC}"
+}
+
 print_banner() {
     echo -e "${PURPLE}${BOLD}"
     echo "    ╔═══════════════════════════════════════════════════════════════╗"
@@ -40,6 +54,8 @@ print_banner() {
     echo "    ║                                                               ║"
     echo "    ╚═══════════════════════════════════════════════════════════════╝"
     echo -e "${NC}"
+    get_telemetry
+    echo
 }
 
 print_usage() {
@@ -50,7 +66,9 @@ ${BOLD}COMMANDS:${NC}
   ${CYAN}harden${NC}              Interactive security hardening (single server)
   ${CYAN}report${NC}              Generate security status report
   ${CYAN}deploy${NC}              Deploy to multiple servers via Ansible
+  ${CYAN}rollback${NC}            Revert security hardening changes
   ${CYAN}check${NC}               System compatibility check
+  ${CYAN}test${NC}                Run automated QA & security test suite
   ${CYAN}update${NC}              Update Astro Server toolkit
   ${CYAN}version${NC}             Show version information
   ${CYAN}help${NC}                Show this help message
@@ -240,10 +258,16 @@ run_report() {
     "$SCRIPTS_DIR/security-report.sh" "$@"
 }
 
+run_rollback() {
+    echo -e "${CYAN}🔄 Initializing rollback sequence...${NC}"
+    ensure_script "$SCRIPTS_DIR/rollback.sh" || return 1
+    "$SCRIPTS_DIR/rollback.sh"
+}
+
 run_deploy() {
     if ! command -v ansible-playbook >/dev/null 2>&1; then
         echo -e "${RED}❌ Ansible not found. Please install Ansible first.${NC}"
-        echo -e "${YELLOW}💡 Install with: sudo apt install ansible${NC}"
+        echo -e "${YELLOW}💡 Install with: sudo apt install ansible (or dnf/pacman equivalent)${NC}"
         return 1
     fi
     
@@ -438,6 +462,12 @@ run_check() {
     echo -e "${BLUE}💡 For detailed security analysis, run: ${WHITE}$0 report${NC}"
 }
 
+run_tests() {
+    echo -e "${CYAN}🧪 Running automated security & QA test suite...${NC}"
+    ensure_script "$SCRIPT_DIR/tests/run_tests.sh" || return 1
+    "$SCRIPT_DIR/tests/run_tests.sh" "$@"
+}
+
 run_update() {
     echo -e "${CYAN}🔄 Updating Astro Server toolkit...${NC}"
     
@@ -457,10 +487,12 @@ show_version() {
     echo -e "Version: ${GREEN}$VERSION${NC}"
     echo -e "Path: ${BLUE}$SCRIPT_DIR${NC}"
     echo
-    echo -e "${BOLD}Components:${NC}"
-    echo -e "  Scripts: ${CYAN}$(ls -1 "$SCRIPTS_DIR"/*.sh 2>/dev/null | wc -l) files${NC}"
-    echo -e "  Configs: ${CYAN}$(find "$SCRIPT_DIR/configs" -name "*.conf" 2>/dev/null | wc -l) templates${NC}"
-    echo -e "  Ansible: ${CYAN}$(ls -1 "$ANSIBLE_DIR/playbooks"/*.yml 2>/dev/null | wc -l) playbooks${NC}"
+    echo -e "${BOLD}Components & Specialists:${NC}"
+    echo -e "  Agents:  ${CYAN}6 Specialized AI Agents${NC} (.agents/)"
+    echo -e "  Scripts: ${CYAN}$(ls -1 "$SCRIPTS_DIR"/*.sh 2>/dev/null | wc -l | tr -d ' ') files${NC}"
+    echo -e "  Configs: ${CYAN}$(find "$SCRIPT_DIR/configs" -name "*.conf" 2>/dev/null | wc -l | tr -d ' ') templates${NC}"
+    echo -e "  Ansible: ${CYAN}$(ls -1 "$ANSIBLE_DIR/playbooks"/*.yml 2>/dev/null | wc -l | tr -d ' ') playbooks${NC}"
+    echo -e "  Tests:   ${CYAN}$(find "$SCRIPT_DIR/tests" -name "*.bats" 2>/dev/null | wc -l | tr -d ' ') suites ($(grep -c '@test' "$SCRIPT_DIR"/tests/unit/*.bats 2>/dev/null || echo 0) assertions)${NC}"
 }
 
 show_interactive_menu() {
@@ -478,10 +510,12 @@ show_interactive_menu() {
         echo -e "  ${GREEN}1)${NC} 🛡️  ${CYAN}Harden Server${NC}          - Interactive security hardening"
         echo -e "  ${GREEN}2)${NC} 📊 ${CYAN}Generate Report${NC}         - Security status report"
         echo -e "  ${GREEN}3)${NC} 🚀 ${CYAN}Deploy to Multiple${NC}      - Deploy via Ansible"
-        echo -e "  ${GREEN}4)${NC} 🔍 ${CYAN}System Check${NC}            - Compatibility verification"
-        echo -e "  ${GREEN}5)${NC} 🔄 ${CYAN}Update Toolkit${NC}          - Update Astro Server"
-        echo -e "  ${GREEN}6)${NC} ℹ️  ${CYAN}Version Info${NC}            - Show version details"
-        echo -e "  ${GREEN}7)${NC} ❓ ${CYAN}Help${NC}                     - Show detailed help"
+        echo -e "  ${GREEN}4)${NC} 🔄 ${CYAN}Rollback Changes${NC}        - Revert security hardening"
+        echo -e "  ${GREEN}5)${NC} 🔍 ${CYAN}System Check${NC}            - Compatibility verification"
+        echo -e "  ${GREEN}6)${NC} 🔄 ${CYAN}Update Toolkit${NC}          - Update Astro Server"
+        echo -e "  ${GREEN}7)${NC} 🧪 ${CYAN}Run Test Suite${NC}          - Automated test suite (BATS)"
+        echo -e "  ${GREEN}8)${NC} ℹ️  ${CYAN}Version Info${NC}            - Show version details"
+        echo -e "  ${GREEN}9)${NC} ❓ ${CYAN}Help${NC}                     - Show detailed help"
         echo -e "  ${GREEN}0)${NC} 🚪 ${CYAN}Exit${NC}                     - Exit Astro Server"
         echo
         echo -e "${YELLOW}${BOLD}Quick Profiles:${NC}"
@@ -495,6 +529,7 @@ show_interactive_menu() {
         echo
         echo -e "${BLUE}💡 Tip: You can also use command line arguments like:${NC}"
         echo -e "   ${WHITE}$0 harden --profile web${NC}"
+        echo -e "   ${WHITE}$0 test${NC}"
         echo -e "   ${WHITE}$0 deploy --inventory hosts${NC}"
         echo
         echo -e "${YELLOW}${BOLD}Enter your choice:${NC} \c"
@@ -517,7 +552,7 @@ show_interactive_menu() {
             3)
                 if ! command -v ansible-playbook >/dev/null 2>&1; then
                     echo -e "${RED}❌ Ansible not found. Please install Ansible first.${NC}"
-                    echo -e "${YELLOW}💡 Install with: sudo apt install ansible${NC}"
+                    echo -e "${YELLOW}💡 Install with: sudo apt install ansible (or dnf/pacman equivalent)${NC}"
                     echo -e "${YELLOW}Press Enter to continue...${NC}"
                     read -r
                     continue
@@ -537,6 +572,14 @@ show_interactive_menu() {
                 break
                 ;;
             4)
+                echo -e "${CYAN}🔄 Starting rollback sequence...${NC}"
+                echo
+                check_dependencies && check_permissions && run_rollback
+                echo -e "${YELLOW}Press Enter to continue...${NC}"
+                read -r
+                continue
+                ;;
+            5)
                 echo -e "${CYAN}🔍 Running system compatibility check...${NC}"
                 echo
                 run_check
@@ -544,20 +587,28 @@ show_interactive_menu() {
                 read -r
                 continue
                 ;;
-            5)
+            6)
                 echo -e "${CYAN}🔄 Updating Astro Server toolkit...${NC}"
                 run_update
                 echo -e "${YELLOW}Press Enter to continue...${NC}"
                 read -r
                 continue
                 ;;
-            6)
+            7|t|test)
+                echo -e "${CYAN}🧪 Launching test suite...${NC}"
+                echo
+                run_tests
+                echo -e "${YELLOW}Press Enter to continue...${NC}"
+                read -r
+                continue
+                ;;
+            8|v|version)
                 show_version
                 echo -e "${YELLOW}Press Enter to continue...${NC}"
                 read -r
                 continue
                 ;;
-            7)
+            9|h|help)
                 print_usage
                 echo -e "${YELLOW}Press Enter to continue...${NC}"
                 read -r
@@ -650,14 +701,14 @@ main() {
                 ASTRO_NO_JOKES=1; export ASTRO_NO_JOKES; shift ;;
             --quiet)
                 QUIET=1; shift ;;
-            harden|report|deploy|check|update|version|--version|-v|help|--help|-h)
+            harden|report|deploy|rollback|check|test|update|version|--version|-v|help|--help|-h)
                 break ;;
             *)
                 break ;;
         esac
     done
 
-    trap 'echo -e "${RED}❌ An error occurred. Review the output above. For SSH recovery, if needed: sudo cp /etc/ssh/sshd_config.backup.* /etc/ssh/sshd_config && sudo systemctl restart ssh${NC}"' ERR
+    trap 'echo -e "${RED}❌ An error occurred. Review the output above. For SSH recovery, if needed: sudo cp /var/backups/astro-server/sshd_config.backup.* /etc/ssh/sshd_config && sudo systemctl restart ssh (or sshd)${NC}"' ERR
 
     # Check if no arguments provided
     if [ $# -eq 0 ]; then
@@ -680,9 +731,17 @@ main() {
             shift
             check_dependencies && run_deploy "$@"
             ;;
+        rollback)
+            shift
+            check_dependencies && check_permissions && run_rollback "$@"
+            ;;
         check)
             shift
             run_check "$@"
+            ;;
+        test)
+            shift
+            run_tests "$@"
             ;;
         update)
             shift
