@@ -1,0 +1,59 @@
+# -*- mode: ruby -*-
+# vi: set ft=ruby :
+
+# Astro Server Vagrant Integration Test Matrix
+# Uses real virtual machines to test sysctl, firewalls, and systemd services
+# completely isolated from your host machine.
+
+Vagrant.configure("2") do |config|
+  
+  # Base shared configuration
+  config.vm.provider "virtualbox" do |vb|
+    vb.memory = "1024"
+    vb.cpus = 1
+  end
+
+  # Sync the current repository into the VM
+  config.vm.synced_folder ".", "/vagrant"
+
+  # 1. Ubuntu 22.04 LTS (Jammy)
+  config.vm.define "ubuntu" do |ubuntu|
+    ubuntu.vm.box = "ubuntu/jammy64"
+    ubuntu.vm.hostname = "astro-test-ubuntu"
+    ubuntu.vm.provision "shell", inline: <<-SHELL
+      echo "=== Testing on Ubuntu ==="
+      sudo /vagrant/astro harden --profile minimal --no-jokes
+    SHELL
+  end
+
+  # 2. Debian 12 (Bookworm)
+  config.vm.define "debian" do |debian|
+    debian.vm.box = "debian/bookworm64"
+    debian.vm.hostname = "astro-test-debian"
+    debian.vm.provision "shell", inline: <<-SHELL
+      echo "=== Testing on Debian ==="
+      sudo /vagrant/astro harden --profile minimal --no-jokes
+    SHELL
+  end
+
+  # 3. Rocky Linux 9 (RHEL derivative)
+  config.vm.define "rocky" do |rocky|
+    rocky.vm.box = "rockylinux/9"
+    rocky.vm.hostname = "astro-test-rocky"
+    rocky.vm.provision "shell", inline: <<-SHELL
+      echo "=== Testing on Rocky Linux ==="
+      sudo /vagrant/astro harden --profile minimal --no-jokes
+    SHELL
+  end
+
+  # 4. Fedora 39
+  config.vm.define "fedora" do |fedora|
+    fedora.vm.box = "fedora/39-cloud-base"
+    fedora.vm.hostname = "astro-test-fedora"
+    fedora.vm.provision "shell", inline: <<-SHELL
+      echo "=== Testing on Fedora ==="
+      sudo /vagrant/astro harden --profile minimal --no-jokes
+    SHELL
+  end
+
+end

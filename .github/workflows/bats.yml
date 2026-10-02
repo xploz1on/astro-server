@@ -1,0 +1,24 @@
+name: Bats Unit Tests
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v4
+    
+    - name: Setup Bats
+      uses: migalmoreno/setup-bats@v1
+      with:
+        bats-version: 1.11.0
+
+    - name: Run Bats Tests
+      run: bats tests/unit
+
+    - name: Run Native Assertions
+      run: ./tests/run_tests.sh
