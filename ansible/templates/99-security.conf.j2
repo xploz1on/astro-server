@@ -19,16 +19,20 @@ net.ipv4.conf.default.accept_source_route = {{ kernel_security.network.accept_so
 net.ipv6.conf.all.accept_source_route = {{ kernel_security.network.accept_source_route | default(0) }}
 net.ipv6.conf.default.accept_source_route = {{ kernel_security.network.accept_source_route | default(0) }}
 
-# Reverse Path Filtering
+# Reverse Path Filtering and Martian Logging
 net.ipv4.conf.all.rp_filter = {{ kernel_security.network.rp_filter | default(1) }}
 net.ipv4.conf.default.rp_filter = {{ kernel_security.network.rp_filter | default(1) }}
+net.ipv4.conf.all.log_martians = 1
+net.ipv4.conf.default.log_martians = 1
 
 # ICMP Settings
-net.ipv4.icmp_echo_ignore_all = {{ kernel_security.network.icmp_echo_ignore_all | default(1) }}
+net.ipv4.icmp_echo_ignore_all = {{ kernel_security.network.icmp_echo_ignore_all | default(0) }}
 net.ipv4.icmp_echo_ignore_broadcasts = {{ kernel_security.network.icmp_echo_ignore_broadcasts | default(1) }}
+net.ipv4.icmp_ignore_bogus_error_responses = 1
 
 # TCP Security
 net.ipv4.tcp_syncookies = {{ kernel_security.network.tcp_syncookies | default(1) }}
+net.ipv4.tcp_rfc1337 = 1
 
 {% if astro_security_profile in ['aggressive', 'paranoid'] %}
 # IPv6 Disable (for high security profiles)
@@ -40,10 +44,17 @@ net.ipv6.conf.default.disable_ipv6 = {{ kernel_security.network.disable_ipv6 | d
 kernel.dmesg_restrict = {{ kernel_security.security.dmesg_restrict | default(1) }}
 kernel.kptr_restrict = {{ kernel_security.security.kptr_restrict | default(2) }}
 kernel.randomize_va_space = {{ kernel_security.security.randomize_va_space | default(2) }}
+kernel.yama.ptrace_scope = {{ kernel_security.security.yama_ptrace_scope | default(1) }}
+
+# Filesystem Link and Dump Protection
+fs.protected_hardlinks = 1
+fs.protected_symlinks = 1
+fs.protected_fifos = 2
+fs.protected_regular = 2
+fs.suid_dumpable = 0
 
 {% if astro_security_profile == 'paranoid' %}
 # Additional paranoid security settings
-kernel.yama.ptrace_scope = 1
 kernel.kexec_load_disabled = 1
 kernel.unprivileged_bpf_disabled = 1
 net.core.bpf_jit_harden = 2

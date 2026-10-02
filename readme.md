@@ -17,12 +17,15 @@ Transform your Linux servers into impenetrable fortresses with automated securit
 ### 📦 Install & Run (30 seconds)
 
 ```bash
-# 1. Clone repository
+# Option 1: Global Installation (Recommended)
+curl -sSL https://raw.githubusercontent.com/xploz1on/astro-server/main/install.sh | sudo bash
+
+# Run the interactive launcher 🎉
+astro
+
+# Option 2: Local Git Clone
 git clone https://github.com/xploz1on/astro-server.git
 cd astro-server
-chmod +x astro ./scripts/*.sh
-
-# 2. Run the interactive launcher 🎉
 ./astro
 ```
 

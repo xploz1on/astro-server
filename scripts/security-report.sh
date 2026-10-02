@@ -48,9 +48,17 @@ cat > "$OUTPUT_FILE" << EOF
 
 EOF
 
+# Detect SSH service name (ssh on Debian/Ubuntu, sshd on RHEL/CentOS/Fedora/Arch)
+SSH_SERVICE="ssh.service"
+if ! sudo systemctl is-active --quiet ssh.service 2>/dev/null && sudo systemctl is-active --quiet sshd.service 2>/dev/null; then
+    SSH_SERVICE="sshd.service"
+elif systemctl list-unit-files sshd.service 2>/dev/null | grep -q sshd.service; then
+    SSH_SERVICE="sshd.service"
+fi
+
 # Get key metrics for summary
 FAIL2BAN_STATUS=$(sudo systemctl is-active fail2ban 2>/dev/null || echo "inactive")
-FAILED_ATTEMPTS=$(sudo journalctl -u ssh.service --since "24 hours ago" 2>/dev/null | grep -i "failed\|invalid" | wc -l)
+FAILED_ATTEMPTS=$(sudo journalctl -u "$SSH_SERVICE" --since "24 hours ago" 2>/dev/null | grep -i "failed\|invalid" | wc -l)
 FAILED_ATTEMPTS=${FAILED_ATTEMPTS:-0}
 
 BANNED_IPS=$(sudo fail2ban-client status sshd 2>/dev/null | grep "Currently banned:" | awk '{print $4}' | grep -o '[0-9]*')
@@ -199,7 +207,7 @@ cat >> "$OUTPUT_FILE" << EOF
 |------|----------|---------|--------|
 EOF
 
-sudo ss -tuln 2>/dev/null | grep LISTEN | while read line; do
+sudo ss -tuln 2>/dev/null | grep LISTEN | while read -r line; do
     PROTO=$(echo "$line" | awk '{print $1}')
     ADDRESS=$(echo "$line" | awk '{print $5}')
     PORT=$(echo "$ADDRESS" | grep -o ':[0-9]*$' | cut -d: -f2)
@@ -434,7 +442,7 @@ if [ "$FAILED_ATTEMPTS" -gt 0 ]; then
 ### Recent Attack Patterns
 
 \`\`\`
-$(sudo journalctl -u ssh.service --since "24 hours ago" 2>/dev/null | grep -i "failed\|invalid" | tail -10 | awk '{print $1, $2, $3, $NF}' | sort | uniq -c | sort -nr)
+$(sudo journalctl -u "$SSH_SERVICE" --since "24 hours ago" 2>/dev/null | grep -i "failed\|invalid" | tail -10 | awk '{print $1, $2, $3, $NF}' | sort | uniq -c | sort -nr)
 \`\`\`
 EOF
 else

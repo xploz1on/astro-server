@@ -472,13 +472,17 @@ run_update() {
     echo -e "${CYAN}🔄 Updating Astro Server toolkit...${NC}"
     
     if [ -d "$SCRIPT_DIR/.git" ]; then
-        echo -e "${BLUE}📥 Pulling latest changes...${NC}"
+        echo -e "${BLUE}📥 Git repository detected. Pulling latest changes...${NC}"
         cd "$SCRIPT_DIR"
         git pull --ff-only origin main
         echo -e "${GREEN}✅ Update complete!${NC}"
     else
-        echo -e "${YELLOW}⚠️  Not a git repository. Manual update required.${NC}"
-        echo -e "${BLUE}💡 Download latest version from: https://github.com/xploz1on/astro-tech${NC}"
+        echo -e "${BLUE}📥 Standalone installation detected. Re-running installer...${NC}"
+        if ! curl -sSL https://raw.githubusercontent.com/xploz1on/astro-server/main/install.sh | sudo bash; then
+            echo -e "${RED}❌ Update failed.${NC}"
+            return 1
+        fi
+        echo -e "${GREEN}✅ Update complete!${NC}"
     fi
 }
 

@@ -5,6 +5,20 @@ All notable changes to the Astro Server Security Toolkit will be documented in t
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.1.0] - 2026-10-02 🏗️
+
+### ✨ Added
+- **Modular Architecture**: Broke down the 1000+ line `Astro-server.sh` monolith into 8 highly-focused `scripts/lib/` modules (colors, os_detect, ui, scoring, ssh, fail2ban, firewall, sysctl).
+- **Single Source of Truth (SSoT)**: Introduced `config/astro.yml` to serve as the unified baseline for both Bash execution and Ansible rollouts, parsed natively with zero dependencies.
+- **Rollback Functionality**: Added `./astro rollback` (and interactive menu option) to safely revert SSH, Sysctl, Fail2Ban, and Firewall changes made by Astro Server.
+- **Automated Test Suite**: Added Bats-core unit testing (`tests/unit/`) with mocked dependencies and integration testing (`tests/integration/`) via a Vagrant multi-distribution matrix.
+
+### 🛡️ Security & Portability
+- **Zero-Leak SSH Keys**: Patched a critical issue to ensure `id_ed25519` private keys are never printed to stdout during generation.
+- **RFC 1337 Sysctl**: Enabled TCP TIME-WAIT assassination protection.
+- **Distro Abstraction**: Added dynamic `detect_os`, `pkg_install`, and `SSH_SERVICE` detection supporting Ubuntu, Debian, RHEL, Rocky, Fedora, and Arch Linux.
+- **Bash Safety**: Enforced `set -euo pipefail` strictly across all modules and implemented secure `mktemp` for drop-in configuration files.
+
 ## [1.0.0] - 2025-01-16 🚀
 
 ### 🎉 Initial Release - Complete Security Platform
