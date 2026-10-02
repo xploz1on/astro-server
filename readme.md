@@ -1,432 +1,292 @@
 # 🚀 Astro Server Security Toolkit
 
 [![License: Apache 2.0](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
-[![Shell](https://img.shields.io/badge/Shell-Bash-green.svg)](https://www.gnu.org/software/bash/)
+[![Shell](https://img.shields.io/badge/Shell-Bash%20(set%20--euo%20pipefail)-green.svg)](https://www.gnu.org/software/bash/)
 [![Ansible](https://img.shields.io/badge/Ansible-Ready-red.svg)](https://www.ansible.com/)
-[![Security](https://img.shields.io/badge/Security-Hardening-blue.svg)](https://github.com/xploz1on/astro-tech)
+[![Security](https://img.shields.io/badge/Security-Hardened%20(CIS%2FNIST)-blue.svg)](https://github.com/xploz1on/astro-server)
+[![AI Agents](https://img.shields.io/badge/AI%20Agents-5%20Specialists-purple.svg)](.agents/)
 
-> **Enterprise-grade server security hardening and monitoring toolkit**
+> **Enterprise-grade Linux server security hardening, monitoring, and multi-agent compliance toolkit**
 
-Transform your Linux servers into impenetrable fortresses with automated security hardening, real-time monitoring, and multi-server deployment capabilities.
+Transform your Linux servers into impenetrable fortresses with automated security hardening, real-time intrusion monitoring, multi-server Ansible orchestration, and an integrated multi-agent review system.
+
+---
 
 ## 🚀 Quick Start
 
 ### 📦 Install & Run (30 seconds)
 
 ```bash
-# 1. Download and setup
+# 1. Clone repository
 git clone https://github.com/xploz1on/astro-server.git
-cd astro-tech
-chmod +x astro
+cd astro-server
+chmod +x astro ./scripts/*.sh
 
-# 2. Run it! 🎉
+# 2. Run the interactive launcher 🎉
 ./astro
 ```
 
-**That's it!** Astro Server will show you a beautiful interactive menu. No need to remember commands or profiles!
+> [!TIP]
+> **Zero configuration needed**: Astro Server launches an intuitive, interactive CLI menu. No complex flags or syntax to memorize.
+
+---
 
 ### 🎨 Interactive Menu Preview
 
-```
+```text
     ╔═══════════════════════════════════════════════════════════════╗
-    ║                    🛡️  ASTRO SERVER MENU                    ║
+    ║                    🛡️  ASTRO SERVER MENU                     ║
     ╚═══════════════════════════════════════════════════════════════╝
 
 Available Operations:
-  1) 🛡️  Harden Server          - Interactive security hardening
-  2) 📊 Generate Report         - Security status report
-  3) 🚀 Deploy to Multiple      - Deploy via Ansible
-  4) 🔍 System Check            - Compatibility verification
-  5) 🔄 Update Toolkit          - Update Astro Server
+  1) 🛡️  Harden Server          - Interactive security hardening wizard
+  2) 📊 Generate Report         - Markdown security audit report
+  3) 🚀 Deploy to Multiple      - Multi-server deployment via Ansible
+  4) 🔍 System Check            - Distribution & compatibility verification
+  5) 🔄 Update Toolkit          - Update Astro Server toolkit
   6) ℹ️  Version Info            - Show version details
-  7) ❓ Help                     - Show detailed help
+  7) ❓ Help                     - Show detailed usage help
   0) 🚪 Exit                     - Exit Astro Server
 
 Quick Profiles:
-  dev) 💻 Development           - VS Code compatible
-  prod) 🔴 Production          - Maximum security
-  bal) 🟡 Balanced             - Asks about VS Code
-  web) 🌐 Web Server           - Web applications
-  db) 🗄️  Database             - Database servers
-  a) ⚡ Aggressive              - High security (legacy)
-  p) 🔒 Paranoid                - Maximum security (legacy)
+  dev) 💻 Development           - Remote SSH / VS Code compatible
+  prod) 🔴 Production          - Maximum security hardening
+  bal) 🟡 Balanced             - Balanced security with dev prompt (default)
+  web) 🌐 Web Server           - Web server profile (HTTP/HTTPS enabled)
+  db) 🗄️  Database             - Database server profile (locked down)
+  a) ⚡ Aggressive              - High-security policy
+  p) 🔒 Paranoid                - Maximum isolation & strict restrictions
 
 Enter your choice:
 ```
 
-**Just type a number or letter and press Enter!** 🎉
+---
 
-### 🚀 Advanced Usage (Command Line)
+### 💻 CLI & Non-Interactive Commands
 
 ```bash
-# Quick hardening with specific profiles
-./astro harden --profile development # VS Code compatible development
-./astro harden --profile production  # Maximum security for production
-./astro harden --profile balanced    # Asks about VS Code support
-./astro harden --profile webserver   # Optimized for web applications
-./astro harden --profile database    # Maximum security for databases
+# Apply security profiles directly
+./astro harden --profile development # Remote dev / VS Code compatible
+./astro harden --profile production  # Strict production hardening
+./astro harden --profile balanced    # Balanced policy with interactive prompts
+./astro harden --profile webserver   # Optimized for web workloads (80/443 open)
+./astro harden --profile database    # Database server hardening
 
-# Generate security report
+# Generate a security audit report (Markdown)
 ./astro report
 
-# System compatibility check
+# Run system compatibility check
 ./astro check
 
-# Multi-server deployment
-./astro deploy --inventory hosts
+# Multi-server Ansible deployment
+./astro deploy --inventory ansible/inventory/hosts
 ```
 
-### 💻 VS Code Remote Development Support
+---
 
-Astro Server includes intelligent VS Code compatibility:
+## 🤖 AI Agent Governance & Review System
 
-```bash
-# 🚀 RECOMMENDED: Interactive approach (safest)
-./astro
-# Choose "1" then select "bal" for balanced profile
-# You'll be asked about VS Code support during deployment
+Astro Server includes a dedicated multi-agent engineering framework located in [`.agents/`](.agents/). Each specialist agent maintains rigorous code quality, security posture, distribution compatibility, and architectural planning:
 
-# Quick shortcuts for VS Code users
-./astro dev     # Development profile (always VS Code compatible)
-./astro bal     # Balanced profile (asks about VS Code)
-
-# For production servers (VS Code disabled by design)
-./astro prod    # Production profile (maximum security)
+```
+.agents/
+├── README.md                      # Framework documentation & workflows
+├── overseer/                      # 👁️ Command center, triage, STATUS.md
+├── bash-code-reviewer/            # 🐚 ShellCheck, POSIX standards, Bash safety
+├── security-reviewer/             # 🔒 CIS/NIST checks, crypto, audit reports
+├── linux-code-reviewer/           # 🐧 Multi-distro compatibility, systemd, FHS
+└── improvement-planner/           # 📈 Roadmap planning, architecture metrics
 ```
 
-**🛡️ Safety First**: Astro Server will **never** break your SSH connection. All changes are applied safely with:
-- Automatic SSH connection verification
-- Backup creation before modifications
-- Interactive confirmation for risky changes
-- Easy rollback capabilities
+| Agent | Role | Scope | Audit Report |
+|-------|------|-------|--------------|
+| 👁️ **Overseer** | Command Center & Coordinator | Synthesizes findings, enforces quality gates | [STATUS.md](.agents/overseer/STATUS.md) |
+| 🐚 **Bash Reviewer** | Shell Safety Specialist | `set -euo pipefail`, safe tempfiles, error traps | [REPORT.md](.agents/bash-code-reviewer/REPORT.md) |
+| 🔒 **Security Reviewer** | Cryptographic & System Security | Zero-leak keys, modern ciphers, sysctl | [REPORT.md](.agents/security-reviewer/REPORT.md) |
+| 🐧 **Linux Reviewer** | OS Portability Specialist | Multi-distro package managers, systemd units | [REPORT.md](.agents/linux-code-reviewer/REPORT.md) |
+| 📈 **Improvement Planner** | Architecture & Roadmap | Modularization, automated testing, metrics | [REPORT.md](.agents/improvement-planner/REPORT.md) |
 
-## 📋 Table of Contents
+> [!NOTE]
+> Check current project health and open tasks at any time in [`.agents/overseer/STATUS.md`](.agents/overseer/STATUS.md).
 
-- [✨ Why Astro Server?](#-why-astro-server)
-- [🌟 Features](#-features)
-- [🛡️ Security Features](#️-security-features)
-- [🐧 Supported Distributions](#-supported-distributions)
-- [📚 Documentation & Advanced Usage](#-documentation--advanced-usage)
-- [🎯 Roadmap](#-roadmap)
-- [🤝 Contributing](#-contributing)
-- [📄 License](#-license)
-- [🆘 Support & Community](#-support--community)
+---
 
-## ✨ Why Astro Server?
+## 🛡️ Enterprise Security Controls
 
-- 🎯 **One Command Launch** - Just run `./astro` and you're ready to go!
-- 🛡️ **Enterprise-Grade Protection** - Multi-layer security used by Fortune 500 companies
-- 📊 **Beautiful Reporting** - Professional security reports that executives love
-- 🤖 **Automation Ready** - Scale from 1 to 1000+ servers with Ansible
-- 🐧 **Universal Compatibility** - Works across all major Linux distributions
-- 🔒 **Zero Trust Approach** - Assume breach, verify everything
-- 📈 **Continuous Monitoring** - Real-time threat detection and response
-- 🎨 **Beautiful Interface** - No more remembering complex commands or profiles
+### 🔐 Modern SSH Hardening
+- **Zero Cleartext Leakage**: Private keys are **never** dumped to standard output. Users are guided to paste public keys or retrieve keys securely via SCP/SFTP with `0600` permissions.
+- **Modern Cryptography**: Enforces `ssh-ed25519,rsa-sha2-512,rsa-sha2-256` for `HostKeyAlgorithms` and Curve25519 key exchange algorithms.
+- **Root & Password Restrictions**: Disables root login (`PermitRootLogin no`) and enforces key-based authentication (`PasswordAuthentication no`).
+- **Connection Rate Limiting**: `MaxAuthTries 3`, `MaxSessions 2`, and aggressive brute-force drop policies.
+- **Isolated Backups**: Pre-change configurations are archived into `/var/backups/astro-server/` with mode `0700`/`0600` and automatic 30-day retention pruning.
 
-## 🌟 Features
+### 🚨 Intrusion Prevention (Fail2Ban)
+- **Aggressive Mode**: Protects SSH and system services with configurable ban durations (1 hour to 1 week).
+- **IP Validation & Sanitization**: External IP lookup queries are strictly validated against IPv4/IPv6 patterns before appending to `ignoreip`.
+- **Dynamic Service Tracking**: Interacts seamlessly with distribution-specific service names (`ssh` on Debian/Ubuntu, `sshd` on RHEL/Fedora/Arch).
 
-- 🎯 **One-Command Launch** - Just run `./astro` for beautiful interactive menu
-- 🎨 **Interactive Security Hardening** - Beautiful, colorful CLI interface with guided setup
-- 🛡️ **Multi-Layer Protection** - SSH, Fail2Ban, Firewall, Kernel hardening in one tool
-- 📊 **Professional Security Reports** - Markdown reports with executive summaries and metrics
-- 🔄 **Ansible Automation** - Deploy across multiple servers with infrastructure as code
-- 🐧 **Multi-Distro Support** - Ubuntu, Debian, Fedora, RHEL, Arch Linux support
-- 📱 **Real-time Monitoring** - Continuous security status tracking and alerting
-- 🎯 **Zero-Config Setup** - Smart defaults with expert recommendations
-- 🔧 **5 Security Profiles** - Development, Production, Balanced, Web Server, Database
-- 🚀 **VS Code Integration** - Intelligent remote development support
-- 🛡️ **Never Breaks SSH** - Safe deployment with automatic verification
-- 📊 **VS Code Compatibility Reports** - Know your remote development status
+### 🔥 Firewall Orchestration (UFW & firewalld)
+- **Default Deny**: Denies all unsolicited inbound traffic; rate-limits SSH.
+- **Lockout Prevention**: Guaranteed preservation and verification of port 22 access before activating firewall rules.
+- **Service Profiles**: Dedicated rule presets for web, database, and custom port configurations.
 
-## 🛡️ Security Features
+### 🔧 Kernel & Network Hardening (`sysctl`)
+- **RFC 1337 Protection**: `net.ipv4.tcp_rfc1337 = 1` protects against TCP TIME-WAIT assassination attacks.
+- **Filesystem Link Restrictions**: `fs.protected_hardlinks = 1`, `fs.protected_symlinks = 1`, `fs.protected_fifos = 2`, and `fs.protected_regular = 2`.
+- **Memory & Process Security**: `kernel.randomize_va_space = 2` (full ASLR), `kernel.dmesg_restrict = 1`, `kernel.kptr_restrict = 2`, `kernel.yama.ptrace_scope = 1`, and core dumps disabled (`fs.suid_dumpable = 0`).
+- **Network Integrity**: Reverse path filtering (`rp_filter = 1`), martian packet logging (`log_martians = 1`), SYN flood defense (`tcp_syncookies = 1`), source routing disabled, and PMTUD-friendly ICMP configuration.
 
-### 🔐 SSH Hardening
-- ❌ Disable root login
-- 🔑 Key-based authentication enforcement
-- 🚫 Connection attempt limits
-- ⏱️ Session timeouts
-- 🔒 Protocol restrictions
+### 🔄 Distro-Aware Automatic Updates
+- **Debian / Ubuntu**: Automated security updates managed via `unattended-upgrades`.
+- **RHEL / Rocky / Alma / Fedora**: Automated security updates managed via `dnf-automatic.timer`.
 
-### 🛡️ Intrusion Prevention
-- 🚨 Fail2Ban with aggressive mode
-- 🕐 Configurable ban durations (1h - 1 week)
-- 🌐 Real-time IP blocking
-- 📊 Attack pattern analysis
-
-### 🔥 Network Security
-- 🛡️ UFW firewall configuration
-- 🚪 Smart port management
-- 🔒 Default deny policies
-- 🌐 Custom service rules
-
-### 🔧 Kernel Hardening
-- 🚫 IP forwarding disabled
-- 🔒 ICMP protections
-- 🛡️ Source routing disabled
-- 🎯 Enhanced ASLR
-
-### 📊 Monitoring & Reporting
-- 📈 Real-time security dashboards
-- 📋 Markdown status reports
-- 🚨 Attack trend analysis
-- 📊 Resource monitoring
+---
 
 ## 🐧 Supported Distributions
 
-### ✅ Fully Supported
-- **Ubuntu** 18.04+ (LTS recommended)
-- **Debian** 10+ (Buster, Bullseye, Bookworm)
-- **Linux Mint** (All versions)
-- **Pop!_OS** (All versions)
-- **Elementary OS** (All versions)
+Astro Server features a built-in OS abstraction layer supporting major enterprise Linux distributions:
 
-### ✅ Fedora/RHEL Family
-- **Fedora** 35+
-- **RHEL/CentOS** 8+
-- **Rocky Linux** (All versions)
-- **AlmaLinux** (All versions)
-- **Oracle Linux** (All versions)
+| Distribution Family | Supported Versions | Package Manager | SSH Service | Firewall |
+|---------------------|--------------------|-----------------|-------------|----------|
+| **Ubuntu** | 20.04 LTS, 22.04 LTS, 24.04 LTS | `apt` | `ssh` | UFW |
+| **Debian** | 11 (Bullseye), 12 (Bookworm) | `apt` | `ssh` | UFW |
+| **RHEL / Rocky / Alma** | 8.x, 9.x | `dnf` | `sshd` | UFW / firewalld |
+| **Fedora** | 38, 39, 40+ | `dnf` | `sshd` | UFW / firewalld |
+| **Arch Linux** | Current rolling | `pacman` | `sshd` | UFW / iptables |
+| **Derivatives** | Pop!_OS, Mint, Kali, AlmaLinux | `apt` / `dnf` | Dynamic | UFW |
 
-### 🔄 Experimental Support
-- **Arch Linux** & derivatives (Manjaro, EndeavourOS)
-- **Alpine Linux**
-- **openSUSE**
+---
 
-### ❌ Not Supported
-- **macOS** - Linux systems only
-- **Windows** - Use WSL for Windows support
+## 📁 Repository Structure
 
-## 📚 Documentation & Advanced Usage
+```text
+astro-server/
+├── astro                     # 🎯 Main unified CLI launcher script
+├── config/                   # ⚙️ Configuration
+│   └── astro.yml             # Single-Source-of-Truth YAML baseline for Bash & Ansible
+├── scripts/                  # 🔧 Core execution scripts
+│   ├── Astro-server.sh       # Standalone interactive thin orchestrator
+│   ├── security-report.sh    # Markdown security audit report generator
+│   └── lib/                  # Modular library functions (colors, ssh, sysctl, etc.)
+├── ansible/                  # 🤖 Multi-server automation
+│   ├── playbooks/            # Deployment playbooks (harden-servers.yml)
+│   ├── inventory/            # Host inventories (hosts, hosts.example)
+│   ├── group_vars/           # (Symlinked to config/astro.yml)
+│   ├── tasks/                # Reusable task definitions
+│   └── templates/            # Hardened configuration templates (sshd, fail2ban, sysctl)
+├── tests/                    # 🧪 Automated Testing
+│   ├── run_tests.sh          # Native test assertions & runner
+│   ├── unit/                 # Bats-core unit test suite
+│   └── integration/          # Vagrant multi-distribution real VM matrix
+├── .agents/                  # 🤖 AI Agent review & governance framework
+│   ├── README.md             # Agent overview and usage guide
+│   ├── overseer/             # Overseer agent & STATUS.md
+│   ├── bash-code-reviewer/   # Bash review agent & audit reports
+│   ├── security-reviewer/    # Security review agent & audit reports
+│   ├── linux-code-reviewer/  # Linux compatibility review agent
+│   └── improvement-planner/  # Improvement planner agent
+├── docs/                     # 📚 Documentation
 
-### 📖 Installation Methods
-
-```bash
-# Method 1: Clone from GitHub (Recommended)
-git clone https://github.com/xploz1on/astro-server.git
-cd astro-tech
-chmod +x astro
-
-# Method 2: Download and extract
-wget https://github.com/xploz1on/astro-tech/archive/main.zip
-unzip main.zip && cd astro-tech-main
-chmod +x astro
-
-# Method 3: One-line installer (Coming Soon)
-curl -sSL https://get.astro-tech.cloud | bash
+│   ├── INSTALL.md            # Installation instructions
+│   ├── PROFILES.md           # Security profiles specification
+│   ├── STANDALONE-USAGE.md   # Single-server guide
+│   └── ANSIBLE-USAGE.md      # Multi-server deployment guide
+├── LICENSE                   # Apache 2.0 License
+├── CONTRIBUTING.md           # Contribution guidelines
+├── SECURITY.md               # Vulnerability reporting protocol
+├── CHANGELOG.md              # Version release history
+└── ROADMAP.md                # Strategic development milestones
 ```
 
-### 🤖 Multi-Server Deployment with Ansible
+---
+
+## 🤖 Multi-Server Orchestration (Ansible)
 
 ```bash
-# 🎯 EASIEST WAY: Use the interactive menu!
-./astro
-# Then select "Deploy to Multiple" from the menu
+# 1. Install Ansible using your distribution package manager
+sudo apt install ansible    # Debian / Ubuntu
+sudo dnf install ansible    # RHEL / Rocky / Fedora
+sudo pacman -S ansible      # Arch Linux
 
-# 🚀 COMMAND LINE OPTIONS (for advanced users):
-# 1. Install Ansible
-sudo apt install ansible  # Ubuntu/Debian
-sudo dnf install ansible  # Fedora/RHEL
-
-# 2. Configure your server inventory
+# 2. Configure inventory
 cp ansible/inventory/hosts.example ansible/inventory/hosts
 vim ansible/inventory/hosts
 
-# 3. Deploy to all servers
+# 3. Dry-run deployment check
+./astro deploy --check
+
+# 4. Deploy hardening across fleet
 ./astro deploy --inventory ansible/inventory/hosts
 
-# 4. Deploy to specific server groups
-./astro deploy --limit web-servers
-
-# 5. Generate reports for all servers
-./astro deploy --playbook security-reports.yml
+# 5. Limit deployment to specific group
+./astro deploy --limit webservers
 ```
 
-### 📊 Example Security Report Output
+---
+
+## 📊 Sample Security Audit Report
+
+Generate a Markdown report anytime by running `./astro report`:
 
 ```markdown
 # 🛡️ Server Security Status Report
 
+> **Generated:** 2026-09-04 10:45:00 UTC  
+> **Hostname:** `server-01.astro.internal`  
+> **System:** Ubuntu 22.04.4 LTS (Jammy Jellyfish)
+
 ## 📊 Executive Summary
+
 | Metric | Status | Value |
 |--------|--------|-------|
 | **Security Level** | 🟢 **SECURE** | Active monitoring |
+| **Fail2Ban Protection** | 🟢 | running |
 | **Failed Login Attempts (24h)** | ✅ | 0 attempts |
 | **Currently Banned IPs** | ✅ | 0 IPs blocked |
+| **System Uptime** | 🕐 | up 14 days, 3 hours |
 
 ## 🔒 Security Services Status
-✅ SSH hardened with key-only authentication
-✅ Fail2Ban active with aggressive monitoring  
-✅ Firewall configured with minimal attack surface
-✅ Kernel hardened against network attacks
+- 🟢 **SSH**: Root login disabled, key authentication only, modern ciphers
+- 🟢 **Fail2Ban**: Jails active (`sshd`), aggressive protection enabled
+- 🟢 **Firewall**: UFW active, minimal attack surface, SSH rate-limited
+- 🟢 **Kernel**: RFC 1337, ASLR, protected FIFOs/symlinks enabled
 ```
-
-### 🔧 Configuration
-
-#### SSH Security Templates
-```bash
-astro-server/configs/ssh/
-├── hardened-sshd.conf      # Production SSH config
-├── paranoid-sshd.conf      # Maximum security
-└── development-sshd.conf   # Dev-friendly config
-```
-
-#### Fail2Ban Profiles
-```bash
-astro-server/configs/fail2ban/
-├── aggressive.conf         # High security
-├── balanced.conf          # Recommended
-└── permissive.conf        # Light protection
-```
-
-#### Firewall Rules
-```bash
-astro-server/configs/firewall/
-├── web-server.rules       # HTTP/HTTPS services
-├── database.rules         # Database servers
-└── minimal.rules          # SSH-only access
-```
-
-### 📁 Project Structure
-
-```
-astro-server/
-├── astro                     # 🎯 Main launcher script (improved with new profiles)
-├── scripts/                  # 🔧 Core security scripts
-│   ├── Astro-server.sh          # Interactive hardening wizard
-│   └── security-report.sh       # Markdown report generator (VS Code checks)
-├── ansible/                  # 🤖 Multi-server automation
-│   ├── playbooks/               # Deployment playbooks
-│   │   └── harden-servers.yml    # Main hardening playbook (profile-aware)
-│   ├── inventory/               # Server inventories
-│   ├── group_vars/              # Profile-based configuration variables
-│   │   ├── development.yml       # Development profile (VS Code enabled)
-│   │   ├── production.yml        # Production profile (maximum security)
-│   │   ├── balanced.yml          # Balanced profile (asks about VS Code)
-│   │   ├── database.yml          # Database profile (secure DB server)
-│   │   ├── webserver.yml         # Web server profile (web optimized)
-│   │   └── all.yml               # Global variables
-│   ├── tasks/                   # Reusable task files
-│   └── templates/               # Jinja2 configuration templates
-│       ├── sshd_config.j2       # SSH hardening template (profile-aware)
-│       └── jail.local.j2        # Fail2Ban configuration template
-├── configs/                  # ⚙️ Security templates (legacy)
-├── docs/                     # 📚 Comprehensive documentation
-│   ├── PROFILES.md              # Detailed profile documentation
-│   ├── INSTALL.md               # Installation guide
-│   ├── STANDALONE-USAGE.md      # Single server usage
-│   └── ANSIBLE-USAGE.md         # Multi-server deployment
-├── LICENSE                   # 📄 Apache 2.0 License
-├── CONTRIBUTING.md           # 🤝 Contribution guidelines
-└── README.md                 # 📖 This file (updated with new features)
-```
-
-| Guide | Description | Audience |
-|-------|-------------|----------|
-| [🚀 Quick Start](#-quick-start) | Get started in 5 minutes | Everyone |
-| [📖 Installation Guide](docs/INSTALL.md) | Detailed setup instructions | Administrators |
-| [🖥️ Standalone Usage](docs/STANDALONE-USAGE.md) | Single server hardening | System Administrators |
-| [🤖 Ansible Usage](docs/ANSIBLE-USAGE.md) | Multi-server deployment | DevOps Engineers |
-| [🤝 Contributing](CONTRIBUTING.md) | How to contribute | Developers |
-| [🗺️ Roadmap](ROADMAP.md) | Development roadmap | Everyone |
-
-## 🎯 Roadmap
-
-### ✅ Phase 1: Core Features (v1.0.0)
-- [x] Interactive security hardening with beautiful CLI
-- [x] Professional markdown security reports  
-- [x] Multi-layer protection (SSH, Fail2Ban, Firewall, Kernel)
-- [x] Configuration templates and profiles
-- [x] Comprehensive documentation
-
-### ✅ Phase 2: Ansible Automation (v1.1.0) - COMPLETE
-- [x] Complete Ansible playbook framework
-- [x] Multi-server deployment with templates and tasks
-- [x] Multi-OS support (Debian/Ubuntu, RedHat/Fedora)
-- [x] Environment management (dev/staging/prod)
-- [x] Firewall automation (UFW/firewalld)
-- [ ] Advanced role-based architecture
-- [ ] Automated report collection
-
-### 🐧 Phase 3: Multi-Distribution Support (v1.2.0)
-- [ ] Fedora/RHEL/CentOS support
-- [ ] Arch Linux support  
-- [ ] Package manager abstraction
-- [ ] Distribution-specific optimizations
-- [ ] Automated compatibility testing
-
-### 🔒 Phase 4: Advanced Security (v1.3.0)
-- [ ] Container security (Docker/Kubernetes)
-- [ ] Compliance frameworks (CIS, NIST, PCI DSS)
-- [ ] SIEM integration (ELK, Splunk)
-- [ ] Threat intelligence feeds
-- [ ] Zero Trust architecture
-
-### ☁️ Phase 5: Cloud & Enterprise (v2.0.0)
-- [ ] AWS/Azure/GCP integration
-- [ ] Web management dashboard
-- [ ] RESTful API
-- [ ] Mobile app support
-- [ ] Commercial licensing
-
-## 🤝 Contributing
-
-We welcome contributions from security professionals, system administrators, and developers! 
-
-### 🎯 Ways to Contribute
-
-| Area | Skills Needed | Impact |
-|------|---------------|--------|
-| 🐧 **Multi-distro support** | Linux administration, package management | High |
-| 🤖 **Ansible development** | Ansible, YAML, infrastructure as code | High |
-| 🔒 **Security research** | Security hardening, compliance frameworks | Critical |
-| 📊 **Monitoring integration** | Prometheus, Grafana, ELK Stack | Medium |
-| 📝 **Documentation** | Technical writing, tutorials | High |
-| 🧪 **Testing** | QA, automated testing, CI/CD | Medium |
-
-### 🚀 Quick Contribution Guide
-
-1. **Fork** the repository
-2. **Create** a feature branch (`git checkout -b feature/amazing-feature`)
-3. **Test** your changes thoroughly
-4. **Commit** with clear messages (`git commit -m 'Add amazing feature'`)
-5. **Push** to your branch (`git push origin feature/amazing-feature`)
-6. **Open** a Pull Request
-
-See [CONTRIBUTING.md](CONTRIBUTING.md) for detailed guidelines.
-
-## 📄 License
-
-This project is licensed under the Apache License 2.0 - see the [LICENSE](LICENSE) file for details.
-
-## 🆘 Support & Community
-
-### 📞 Getting Help
-- 📖 **Documentation**: Comprehensive guides in [`docs/`](docs/)
-- 🐛 **Bug Reports**: [Create an issue](https://github.com/xploz1on/astro-tech/issues/new?template=bug_report.md)
-- 💡 **Feature Requests**: [Suggest features](https://github.com/xploz1on/astro-tech/issues/new?template=feature_request.md)
-- 💬 **Discussions**: [Community discussions](https://github.com/xploz1on/astro-tech/discussions)
-
-### 🔒 Security
-- **Security Issues**: Email dp@astro-tech.cloud (do not use public issues)
-- **Security Advisories**: Check [GitHub Security Advisories](https://github.com/xploz1on/astro-tech/security/advisories)
-
-### 🌟 Community
-- **Contributors**: See [GitHub Contributors](https://github.com/xploz1on/astro-tech/graphs/contributors)
-- **Code of Conduct**: We follow the [Contributor Covenant](https://www.contributor-covenant.org/)
-- **Discussions**: Join our [community discussions](https://github.com/xploz1on/astro-tech/discussions)
-
-## 🏆 Security Achievements
-
-After running Astro Server, your infrastructure will achieve:
-
-- 🛡️ **Enterprise-grade security posture**
-- 📊 **Continuous threat monitoring**
-- 🚨 **Automated attack prevention**
-- 📋 **Compliance-ready reporting**
-- 🔄 **Scalable security management**
 
 ---
 
-**Transform your servers into ASTRO-level secure fortresses!** 🚀🛡️
+## 🎯 Development Roadmap
 
-*Built with ❤️ for the security community*
+- [x] **v1.0.0**: Core Interactive Hardening, Markdown Reporting, Ansible Automation.
+- [x] **v1.0.1**: Security & Portability Patch (Zero-leak SSH keys, RFC 1337 sysctl, distro package abstraction, safe shell flags).
+- [x] **v1.1.0**: Modular Architecture (`scripts/lib/`), Bats-core + Vagrant CI testing, Single-Source-of-Truth YAML Config.
+- [ ] **v1.2.0**: Rollback mechanics and CIS Linux Benchmark Level 1 automated scoring & auditing.
+- [ ] **v1.3.0**: Container runtime hardening (Docker & Podman security profiles) and zero-dependency binary distribution.
+
+---
+
+## 🤝 Contributing
+
+Contributions are welcome! Please consult [CONTRIBUTING.md](CONTRIBUTING.md) for details on code style, ShellCheck requirements, and testing workflows.
+
+```bash
+# 1. Fork & clone repository
+git clone https://github.com/xploz1on/astro-server.git
+cd astro-server
+
+# 2. Create feature branch
+git checkout -b feature/awesome-hardening
+
+# 3. Validate syntax before submitting
+bash -n astro scripts/*.sh
+
+# 4. Commit and open Pull Request
+git commit -m "feat: add CIS Benchmark 1.2 check"
+git push origin feature/awesome-hardening
+```
+
+---
+
+## 📄 License & Security
+
+- **License**: Licensed under the [Apache License 2.0](LICENSE).
+- **Security Policy**: For responsible disclosure of security issues, please refer to [SECURITY.md](SECURITY.md) or contact `dp@astro-tech.cloud`.
