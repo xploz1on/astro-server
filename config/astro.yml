@@ -1,0 +1,134 @@
+---
+# Astro Server - Global Variables
+# Default configuration for all servers
+
+# Security Profile Settings
+astro_security_profiles:
+  minimal:
+    ssh_max_auth_tries: 6
+    fail2ban_ban_time: 1800      # 30 minutes
+    fail2ban_max_retry: 5
+    enable_kernel_hardening: false
+  
+  balanced:
+    ssh_max_auth_tries: 3
+    fail2ban_ban_time: 3600      # 1 hour
+    fail2ban_max_retry: 3
+    enable_kernel_hardening: true
+  
+  aggressive:
+    ssh_max_auth_tries: 2
+    fail2ban_ban_time: 86400     # 24 hours
+    fail2ban_max_retry: 2
+    enable_kernel_hardening: true
+  
+  paranoid:
+    ssh_max_auth_tries: 1
+    fail2ban_ban_time: 604800    # 1 week
+    fail2ban_max_retry: 1
+    enable_kernel_hardening: true
+
+# SSH Configuration
+ssh_config:
+  permit_root_login: "no"
+  password_authentication: "no"
+  pubkey_authentication: "yes"
+  challenge_response_auth: "no"
+  x11_forwarding: "no"
+  allow_tcp_forwarding: "yes"
+  allow_agent_forwarding: "no"
+  client_alive_interval: 300
+  client_alive_count_max: 2
+  login_grace_time: 30
+  max_sessions: 2
+  compression: "no"
+  strict_modes: "yes"
+
+# Fail2Ban Configuration
+fail2ban_config:
+  default_backend: "systemd"
+  default_banaction: "iptables-multiport"
+  default_mta: "sendmail"
+  # Email notifications (configure per environment)
+  # dest_email: "admin@example.com"
+  # sender_email: "fail2ban@example.com"
+
+# Firewall Configuration
+firewall_rules:
+  web_server:
+    - { port: "22", proto: "tcp", comment: "SSH" }
+    - { port: "80", proto: "tcp", comment: "HTTP" }
+    - { port: "443", proto: "tcp", comment: "HTTPS" }
+  
+  database_server:
+    - { port: "22", proto: "tcp", comment: "SSH" }
+    - { port: "3306", proto: "tcp", source: "10.0.0.0/8", comment: "MySQL" }
+    - { port: "5432", proto: "tcp", source: "10.0.0.0/8", comment: "PostgreSQL" }
+  
+  minimal:
+    - { port: "22", proto: "tcp", comment: "SSH" }
+
+# Kernel Security Settings
+kernel_security:
+  network:
+    ip_forward: 0
+    send_redirects: 0
+    accept_redirects: 0
+    accept_source_route: 0
+    rp_filter: 1
+    icmp_echo_ignore_all: 1
+    icmp_echo_ignore_broadcasts: 1
+    tcp_syncookies: 1
+    disable_ipv6: 1
+  
+  security:
+    dmesg_restrict: 1
+    kptr_restrict: 2
+    randomize_va_space: 2
+
+# Package Management
+packages:
+  debian:
+    security:
+      - fail2ban
+      - ufw
+      - unattended-upgrades
+      - apt-listchanges
+    monitoring:
+      - htop
+      - iotop
+      - nethogs
+  
+  redhat:
+    security:
+      - fail2ban
+      - firewalld
+    monitoring:
+      - htop
+      - iotop
+      - nethogs
+
+# Monitoring and Reporting
+monitoring:
+  enable_security_reports: true
+  report_frequency: "daily"
+  report_format: "markdown"
+  
+# Backup Settings
+backup:
+  config_backup: true
+  backup_retention_days: 30
+  backup_location: "/var/backups/astro-server"
+
+# Logging Configuration
+logging:
+  ssh_log_level: "VERBOSE"
+  fail2ban_log_level: "INFO"
+  syslog_facility: "AUTH"
+
+# Update Management
+updates:
+  enable_auto_updates: true
+  auto_reboot: false
+  auto_reboot_time: "02:00"
+  update_package_lists: true

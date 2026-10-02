@@ -85,27 +85,28 @@ harden_ssh() {
         ssh_tmp=$(mktemp -t astro-ssh-XXXXXX)
         TMP_FILES+=("$ssh_tmp")
 
-        cat > "$ssh_tmp" << 'EOF'
+        cat > "$ssh_tmp" << EOF
 # SSH Security Hardening Configuration - Astro Server
+# Generated from Single-Source-of-Truth YAML config
 HostKeyAlgorithms ssh-ed25519,rsa-sha2-512,rsa-sha2-256
 KexAlgorithms curve25519-sha256,curve25519-sha256@libssh.org
 Ciphers chacha20-poly1305@openssh.com,aes256-gcm@openssh.com,aes256-ctr
 MACs hmac-sha2-512-etm@openssh.com,hmac-sha2-256-etm@openssh.com,hmac-sha2-512,hmac-sha2-256
-MaxAuthTries 3
-MaxSessions 2
-LoginGraceTime 30
+MaxAuthTries \${CONF_astro_security_profiles_minimal_ssh_max_auth_tries:-3}
+MaxSessions \${CONF_ssh_config_max_sessions:-2}
+LoginGraceTime \${CONF_ssh_config_login_grace_time:-30}
 PermitEmptyPasswords no
 Protocol 2
 HostbasedAuthentication no
 IgnoreRhosts yes
-ClientAliveInterval 300
-ClientAliveCountMax 2
-AllowTcpForwarding yes
+ClientAliveInterval \${CONF_ssh_config_client_alive_interval:-300}
+ClientAliveCountMax \${CONF_ssh_config_client_alive_count_max:-2}
+AllowTcpForwarding \${CONF_ssh_config_allow_tcp_forwarding:-yes}
 GatewayPorts no
-AllowAgentForwarding no
-StrictModes yes
-Compression no
-X11Forwarding no
+AllowAgentForwarding \${CONF_ssh_config_allow_agent_forwarding:-no}
+StrictModes \${CONF_ssh_config_strict_modes:-yes}
+Compression \${CONF_ssh_config_compression:-no}
+X11Forwarding \${CONF_ssh_config_x11_forwarding:-no}
 EOF
 
         sudo cp "$ssh_tmp" /etc/ssh/sshd_config.d/99-security-hardening.conf

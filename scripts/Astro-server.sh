@@ -20,8 +20,8 @@ SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 LIB_DIR="$SCRIPT_DIR/lib"
 
 # ── Source all modules ───────────────────────────────────────────────────────
-# Order matters: colors first (others depend on print_* helpers)
-for _mod in colors os_detect ui scoring ssh fail2ban firewall sysctl; do
+# Order matters: colors first, then config to load SSoT, then the rest
+for _mod in colors config os_detect ui scoring ssh fail2ban firewall sysctl; do
     # shellcheck source=/dev/null
     source "$LIB_DIR/${_mod}.sh" || {
         echo "ERROR: Failed to load module ${_mod}.sh" >&2
@@ -29,6 +29,9 @@ for _mod in colors os_detect ui scoring ssh fail2ban firewall sysctl; do
     }
 done
 unset _mod
+
+# Load the YAML configuration as the Single Source of Truth
+load_config || exit 1
 
 # ── Temporary file management ────────────────────────────────────────────────
 TMP_FILES=()
